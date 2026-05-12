@@ -9,3 +9,5 @@ Database.lua
 Modules/Gold.lua
 Modules/Kills.lua
 Modules/Loot.lua
+UI/MainWindow.lua
+Commands.lua

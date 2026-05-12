@@ -6,8 +6,6 @@ local _startingMoney = 0
 local _lastMoney = 0
 local _atMerchant = false
 local _atMail = false
-local _pendingAuctions = {}
-local _recentlyClaimedAuctionGold = {}
 
 local GOLD_KEY = gsub(GOLD_AMOUNT, "%%d", "(%%d+)")
 local SILVER_KEY = gsub(SILVER_AMOUNT, "%%d", "(%%d+)")
@@ -31,7 +29,6 @@ function LettuceTrackerNS.Gold:Initialize()
 
     LettuceTrackerNS:RegisterEvent("MAIL_SHOW", LettuceTrackerNS.Gold, LettuceTrackerNS.Gold.OnMailShow)
     LettuceTrackerNS:RegisterEvent("PLAYER_INTERACTION_MANAGER_FRAME_HIDE", LettuceTrackerNS.Gold, LettuceTrackerNS.Gold.OnMailHide)
-    LettuceTrackerNS:RegisterEvent("MAIL_INBOX_UPDATE", LettuceTrackerNS.Gold, LettuceTrackerNS.Gold.ScanInboxForAuctionGold)
 
     LettuceTrackerNS:RegisterEvent("QUEST_TURNED_IN", LettuceTrackerNS.Gold, LettuceTrackerNS.Gold.QuestTurnIn)
 
@@ -56,12 +53,7 @@ function LettuceTrackerNS.Gold:OnPlayerMoney()
 
     if difference > 0 then
         if _atMail then
-            if self:ResolvePendingAuctionGold(difference) then
-                LettuceTrackerNS.DB:AddGold("Auctioned", difference)
-            else
-                LettuceTrackerNS.DB:AddGold("Other", difference)
-            end
-
+            LettuceTrackerNS.DB:AddGold("Mail", difference)
         elseif _atMerchant then
             LettuceTrackerNS.DB:AddGold("Sold", difference)
         end
@@ -91,53 +83,6 @@ function LettuceTrackerNS.Gold:OnMailHide(windowType)
 
     _atMail = false
     print("Mail End: ", _atMail)
-end
-
-function LettuceTrackerNS.Gold:ScanInboxForAuctionGold()
-    local newPending = {}
-
-    -- Get All Current Auction Gold
-    for i = 1, GetInboxNumItems() do
-        local _, _, _, _, money = GetInboxHeaderInfo(i)
-        local invoiceType = GetInboxInvoiceInfo(i)
-
-        if invoiceType == "seller" and money and money > 0 then
-            newPending[money] = (newPending[money] or 0) + 1
-        end
-    end
-
-    -- Go Through any previous gold auctions and see if some are missing
-    -- if missing, player most likely claimed for gold
-    for amount, oldCount in pairs(_pendingAuctions) do
-        local newCount = newPending[amount] or 0
-        local removedCount = oldCount - newCount
-
-        for _ = 1, removedCount do
-            _recentlyClaimedAuctionGold[amount] = (_recentlyClaimedAuctionGold[amount] or 0) + 1
-        end
-    end
-
-    -- Update the now existing auction gold mail
-    wipe(_pendingAuctions)
-    for amount, count in pairs(newPending) do
-        _pendingAuctions[amount] = count
-    end
-end
-
-function LettuceTrackerNS.Gold:ResolvePendingAuctionGold(amount)
-    local count = _recentlyClaimedAuctionGold[amount]
-
-    if not count or count <= 0 then
-        return false
-    end
-
-    if count == 1 then
-        _recentlyClaimedAuctionGold[amount] = nil
-    else
-        _recentlyClaimedAuctionGold[amount] = count - 1
-    end
-
-    return true
 end
 
 function LettuceTrackerNS.Gold:QuestTurnIn(_,_,money)

@@ -7,7 +7,7 @@ local DEFAULT_TABLE = {
         Total = 0,
         Looted = 0,
         Sold = 0,
-        Auctioned = 0,
+        Mail = 0,
         Quests = 0,
         Other = 0
     },
@@ -96,22 +96,19 @@ function LettuceTrackerNS.DB:AddGold(source, amount)
 
     local character = self:GetCharacter()
     self:AddGoldToTable(character, source, amount)
-
-    character.Gold.Total = (character.Gold.Total or 0) + amount
-    character.Gold[source] =
-        (character.Gold[source] or 0) + amount
+    self:AddGoldToTable(LettuceTrackerDB.Account, source, amount)
 
     print(
         "Added gold:",
         source,
         C_CurrencyInfo.GetCoinTextureString(amount)
     )
+    LettuceTrackerNS.UI:RefreshTotalGold()
 end
 
 function LettuceTrackerNS.DB:AddGoldToTable(statTable, source, amount)
     statTable.Gold.Total = (statTable.Gold.Total or 0) + amount
-    statTable.Gold[source] =
-        (statTable.Gold[source] or 0) + amount
+    statTable.Gold[source] = (statTable.Gold[source] or 0) + amount
 end
 
 function LettuceTrackerNS.DB:AddKill(npcID)
@@ -120,17 +117,19 @@ function LettuceTrackerNS.DB:AddKill(npcID)
     end
 
     local character = self:GetCharacter()
-
-    character.Kills.Total =
-        character.Kills.Total + 1
-
-    character.Kills.NPCs[npcID] =
-        (character.Kills.NPCs[npcID] or 0) + 1
+    self:AddKillToTable(character, npcID)
+    self:AddKillToTable(LettuceTrackerDB.Account, npcID)
 
     print(
         "Killed NPC:",
         npcID
     )
+    LettuceTrackerNS.UI:RefreshTotalKills()
+end
+
+function LettuceTrackerNS.DB:AddKillToTable(statTable, npcID)
+    statTable.Kills.Total = statTable.Kills.Total + 1
+    statTable.Kills.NPCs[npcID] = (statTable.Kills.NPCs[npcID] or 0) + 1
 end
 
 function LettuceTrackerNS.DB:AddLoot(itemID, quantity)
@@ -138,19 +137,19 @@ function LettuceTrackerNS.DB:AddLoot(itemID, quantity)
         return
     end
 
-    quantity = quantity or 1
-
     local character = self:GetCharacter()
-
-    character.Loot.Total =
-        character.Loot.Total + quantity
-
-    character.Loot.Items[itemID] =
-        (character.Loot.Items[itemID] or 0) + quantity
+    self:AddLootToTable(character, itemID, quantity)
+    self:AddLootToTable(LettuceTrackerDB.Account, itemID, quantity)
 
     print(
         "Looted item:",
         itemID,
         "x" .. quantity
     )
+    LettuceTrackerNS.UI:RefreshTotalItems()
+end
+
+function LettuceTrackerNS.DB:AddLootToTable(statTable, itemID, quantity)
+    statTable.Loot.Total = statTable.Loot.Total + quantity
+    statTable.Loot.Items[itemID] = (statTable.Loot.Items[itemID] or 0) + quantity
 end

@@ -1,0 +1,11 @@
+## Interface: 20505
+## Title: Lettuce Tracker
+## Author: TheKingOfLettuce
+## Version: 0.1
+## SavedVariables: LettuceTrackerDB
+
+Core.lua
+Database.lua
+Modules/Gold.lua
+Modules/Kills.lua
+Modules/Loot.lua

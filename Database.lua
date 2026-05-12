@@ -95,6 +95,7 @@ function LettuceTrackerNS.DB:AddGold(source, amount)
     end
 
     local character = self:GetCharacter()
+    self:AddGoldToTable(character, source, amount)
 
     character.Gold.Total = (character.Gold.Total or 0) + amount
     character.Gold[source] =
@@ -105,6 +106,12 @@ function LettuceTrackerNS.DB:AddGold(source, amount)
         source,
         C_CurrencyInfo.GetCoinTextureString(amount)
     )
+end
+
+function LettuceTrackerNS.DB:AddGoldToTable(statTable, source, amount)
+    statTable.Gold.Total = (statTable.Gold.Total or 0) + amount
+    statTable.Gold[source] =
+        (statTable.Gold[source] or 0) + amount
 end
 
 function LettuceTrackerNS.DB:AddKill(npcID)

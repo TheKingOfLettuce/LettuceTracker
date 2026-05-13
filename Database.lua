@@ -15,7 +15,7 @@ local DEFAULT_TABLE = {
     Kills = {
         Total = 0,
         NPCs = {
-            -- [ID] = KillCount
+            -- [ID] = {Name, KillCount}
         }
     },
 
@@ -30,35 +30,12 @@ local DEFAULT_TABLE = {
 
 function LettuceTrackerNS.DB:Initialize()
     LettuceTrackerDB = LettuceTrackerDB or {}
+    LettuceTrackerCharacterDB = LettuceTrackerCharacterDB or {}
 
-    LettuceTrackerDB.Characters = LettuceTrackerDB.Characters or {}
-    LettuceTrackerDB.Account = LettuceTrackerDB.Account or {}
-    self:ApplyDefaults(LettuceTrackerDB.Account, DEFAULT_TABLE)
+    self:ApplyDefaults(LettuceTrackerDB, DEFAULT_TABLE)
+    self:ApplyDefaults(LettuceTrackerCharacterDB, DEFAULT_TABLE)
 
-    local characterKey = self:GetCharacterKey()
-
-    if not LettuceTrackerDB.Characters[characterKey] then
-        LettuceTrackerDB.Characters[characterKey] = {}
-    end
-
-    self:ApplyDefaults(
-        LettuceTrackerDB.Characters[characterKey],
-        DEFAULT_TABLE
-    )
     print("LettuceTrackerDB Initialized")
-end
-
-function LettuceTrackerNS.DB:GetCharacterKey()
-    local realm = GetRealmName()
-    local character = UnitName("player")
-
-    return realm .. "-" .. character
-end
-
-function LettuceTrackerNS.DB:GetCharacter()
-    local characterKey = self:GetCharacterKey()
-
-    return LettuceTrackerDB.Characters[characterKey]
 end
 
 function LettuceTrackerNS.DB:ApplyDefaults(target, source)
@@ -94,16 +71,17 @@ function LettuceTrackerNS.DB:AddGold(source, amount)
         return
     end
 
-    local character = self:GetCharacter()
-    self:AddGoldToTable(character, source, amount)
-    self:AddGoldToTable(LettuceTrackerDB.Account, source, amount)
+    self:AddGoldToTable(LettuceTrackerCharacterDB, source, amount)
+    self:AddGoldToTable(LettuceTrackerDB, source, amount)
 
     print(
         "Added gold:",
         source,
         C_CurrencyInfo.GetCoinTextureString(amount)
     )
-    LettuceTrackerNS.UI:RefreshTotalGold()
+    LettuceTrackerNS.MainWindow:RefreshTotalGold()
+    LettuceTrackerNS.GoldWindow:RefreshTotalGold()
+    LettuceTrackerNS.GoldWindow:RefreshSource(source)
 end
 
 function LettuceTrackerNS.DB:AddGoldToTable(statTable, source, amount)
@@ -111,25 +89,30 @@ function LettuceTrackerNS.DB:AddGoldToTable(statTable, source, amount)
     statTable.Gold[source] = (statTable.Gold[source] or 0) + amount
 end
 
-function LettuceTrackerNS.DB:AddKill(npcID)
+function LettuceTrackerNS.DB:AddKill(npcID, npcName)
     if not npcID then
         return
     end
 
-    local character = self:GetCharacter()
-    self:AddKillToTable(character, npcID)
-    self:AddKillToTable(LettuceTrackerDB.Account, npcID)
+    self:AddKillToTable(LettuceTrackerCharacterDB, npcID, npcName)
+    self:AddKillToTable(LettuceTrackerDB, npcID, npcName)
 
     print(
         "Killed NPC:",
         npcID
     )
-    LettuceTrackerNS.UI:RefreshTotalKills()
+    LettuceTrackerNS.MainWindow:RefreshTotalKills()
 end
 
-function LettuceTrackerNS.DB:AddKillToTable(statTable, npcID)
+function LettuceTrackerNS.DB:AddKillToTable(statTable, npcID, npcName)
     statTable.Kills.Total = statTable.Kills.Total + 1
-    statTable.Kills.NPCs[npcID] = (statTable.Kills.NPCs[npcID] or 0) + 1
+    local killRecord = statTable.Kills.NPCs[npcID]
+    if not killRecord then
+        statTable.Kills.NPCs[npcID] = {}
+        statTable.Kills.NPCs[npcID].KillCount = 0
+    end
+    statTable.Kills.NPCs[npcID].KillCount = statTable.Kills.NPCs[npcID].KillCount + 1
+    statTable.Kills.NPCs[npcID].Name = npcName
 end
 
 function LettuceTrackerNS.DB:AddLoot(itemID, quantity)
@@ -137,16 +120,15 @@ function LettuceTrackerNS.DB:AddLoot(itemID, quantity)
         return
     end
 
-    local character = self:GetCharacter()
-    self:AddLootToTable(character, itemID, quantity)
-    self:AddLootToTable(LettuceTrackerDB.Account, itemID, quantity)
+    self:AddLootToTable(LettuceTrackerCharacterDB, itemID, quantity)
+    self:AddLootToTable(LettuceTrackerDB, itemID, quantity)
 
     print(
         "Looted item:",
         itemID,
         "x" .. quantity
     )
-    LettuceTrackerNS.UI:RefreshTotalItems()
+    LettuceTrackerNS.MainWindow:RefreshTotalItems()
 end
 
 function LettuceTrackerNS.DB:AddLootToTable(statTable, itemID, quantity)

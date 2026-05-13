@@ -38,5 +38,5 @@ function LettuceTrackerNS.Kills:OnCombatLogEvent()
         return
     end
 
-    LettuceTrackerNS.DB:AddKill(npcID)
+    LettuceTrackerNS.DB:AddKill(npcID, destName)
 end

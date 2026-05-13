@@ -3,6 +3,9 @@
 ## Author: TheKingOfLettuce
 ## Version: 0.1
 ## SavedVariables: LettuceTrackerDB
+## SavedVariablesPerCharacter: LettuceTrackerCharacterDB
+
+UI/XMLs/KillWindowFrameButtons.xml
 
 Core.lua
 Database.lua
@@ -10,4 +13,6 @@ Modules/Gold.lua
 Modules/Kills.lua
 Modules/Loot.lua
 UI/MainWindow.lua
+UI/GoldWindow.lua
+UI/KillsWindow.lua
 Commands.lua

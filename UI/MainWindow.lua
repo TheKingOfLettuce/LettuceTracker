@@ -1,6 +1,6 @@
 local _, LettuceTrackerNS = ...
 
-LettuceTrackerNS.UI = {}
+LettuceTrackerNS.MainWindow = {}
 
 local _frame
 local _totalGoldRow
@@ -40,40 +40,40 @@ end
 
 
 local function SaveWindowState(frame)
-    LettuceTrackerDB.UI = LettuceTrackerDB.UI or {}
+    LettuceTrackerCharacterDB.MainWindow = LettuceTrackerCharacterDB.MainWindow or {}
 
-    LettuceTrackerDB.UI.Shown = frame:IsShown()
-    LettuceTrackerDB.UI.Width = frame:GetWidth()
-    LettuceTrackerDB.UI.Height = frame:GetHeight()
+    LettuceTrackerCharacterDB.MainWindow.Shown = frame:IsShown()
+    LettuceTrackerCharacterDB.MainWindow.Width = frame:GetWidth()
+    LettuceTrackerCharacterDB.MainWindow.Height = frame:GetHeight()
 
     local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
 
-    LettuceTrackerDB.UI.Point = point
-    LettuceTrackerDB.UI.RelativePoint = relativePoint
-    LettuceTrackerDB.UI.X = xOfs
-    LettuceTrackerDB.UI.Y = yOfs
+    LettuceTrackerCharacterDB.MainWindow.Point = point
+    LettuceTrackerCharacterDB.MainWindow.RelativePoint = relativePoint
+    LettuceTrackerCharacterDB.MainWindow.X = xOfs
+    LettuceTrackerCharacterDB.MainWindow.Y = yOfs
 end
 
 local function RestoreWindowState(frame)
-    local ui = LettuceTrackerDB.UI
+    local ui = LettuceTrackerCharacterDB.MainWindow
     frame:ClearAllPoints()
     frame:SetSize(ui.Width or 300, ui.Height or 400)
     frame:SetPoint(ui.Point or "CENTER", UIParent, ui.RelativePoint or ui.Point or "CENTER", ui.X or 0, ui.Y or 0)
 end
 
-function LettuceTrackerNS.UI:Create()
+function LettuceTrackerNS.MainWindow:Create()
     if _frame then return _frame end
 
-    _frame = CreateFrame("Frame", "LettueStatsFrame", UIParent)
-    if LettuceTrackerDB.UI then
+    _frame = CreateFrame("Frame", "LettuceStatsFrame", UIParent)
+    if LettuceTrackerCharacterDB.MainWindow then
         RestoreWindowState(_frame)
     else
-        _frame:SetSize(200, 120)
+        _frame:SetSize(200, 150)
         _frame:SetPoint("CENTER")
     end
 
     _frame:SetResizable(true)
-    _frame:SetResizeBounds(200, 120, 600, 800)
+    _frame:SetResizeBounds(200, 150, 600, 800)
 
     _frame:SetMovable(true)
     _frame:EnableMouse(true)
@@ -92,6 +92,7 @@ function LettuceTrackerNS.UI:Create()
     _frame.bg:SetColorTexture(0, 0, 0, 0.4)
 
     self:CreateResizeButton()
+    self:CreateButtons()
 
     _frame.rows = {}
 
@@ -99,8 +100,8 @@ function LettuceTrackerNS.UI:Create()
     _totalKillsRow = CreateStatRow(_frame, _totalGoldRow)
     _totalItemsRow = CreateStatRow(_frame, _totalKillsRow)
 
-    if LettuceTrackerDB.UI then
-        if LettuceTrackerDB.UI.Shown then
+    if LettuceTrackerCharacterDB.MainWindow then
+        if LettuceTrackerCharacterDB.MainWindow.Shown then
             self:Show()
         else
             self:Hide()
@@ -112,7 +113,7 @@ function LettuceTrackerNS.UI:Create()
     return _frame
 end
 
-function LettuceTrackerNS.UI:CreateResizeButton()
+function LettuceTrackerNS.MainWindow:CreateResizeButton()
     _frame.resizeButton = CreateFrame("Button", nil, _frame)
     _frame.resizeButton:SetSize(16, 16)
     _frame.resizeButton:SetPoint("BOTTOMRIGHT", _frame, "BOTTOMRIGHT", -2, 2)
@@ -131,21 +132,7 @@ function LettuceTrackerNS.UI:CreateResizeButton()
     end)
 end
 
-function LettuceTrackerNS.UI:CreateRow(index)
-    local row = _frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-
-    row:SetPoint("LEFT", _frame, "LEFT", 12, 0)
-    row:SetPoint("RIGHT", _frame, "RIGHT", -12, 0)
-    row:SetJustifyH("LEFT")
-    row:SetWidth(260)
-
-    row:Hide()
-
-    _frame.rows[index] = row
-end
-
-
-function LettuceTrackerNS.UI:Toggle()
+function LettuceTrackerNS.MainWindow:Toggle()
     if _frame:IsShown() then
         self:Hide()
     else
@@ -153,7 +140,7 @@ function LettuceTrackerNS.UI:Toggle()
     end
 end
 
-function LettuceTrackerNS.UI:Show()
+function LettuceTrackerNS.MainWindow:Show()
     self:RefreshTotalGold()
     self:RefreshTotalKills()
     self:RefreshTotalItems()
@@ -161,40 +148,70 @@ function LettuceTrackerNS.UI:Show()
     SaveWindowState(_frame)
 end
 
-function LettuceTrackerNS.UI.Hide()
+function LettuceTrackerNS.MainWindow.Hide()
     _frame:Hide()
     SaveWindowState(_frame)
 end
 
-function LettuceTrackerNS.UI:RefreshTotalGold()
+function LettuceTrackerNS.MainWindow:RefreshTotalGold()
     if not _frame then
         return
     end
-
-    local table = LettuceTrackerNS.DB:GetCharacter()
 
     _totalGoldRow.Label:SetText("Total Gold:")
-    _totalGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(table.Gold.Total))
+    _totalGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(LettuceTrackerCharacterDB.Gold.Total))
 end
 
-function LettuceTrackerNS.UI:RefreshTotalKills()
+function LettuceTrackerNS.MainWindow:RefreshTotalKills()
     if not _frame then
         return
     end
-
-    local table = LettuceTrackerNS.DB:GetCharacter()
 
     _totalKillsRow.Label:SetText("Total Kills:")
-    _totalKillsRow.Value:SetText(table.Kills.Total)
+    _totalKillsRow.Value:SetText(LettuceTrackerCharacterDB.Kills.Total)
 end
 
-function LettuceTrackerNS.UI:RefreshTotalItems()
+function LettuceTrackerNS.MainWindow:RefreshTotalItems()
     if not _frame then
         return
     end
 
-    local table = LettuceTrackerNS.DB:GetCharacter()
-
     _totalItemsRow.Label:SetText("Total Items:")
-    _totalItemsRow.Value:SetText(table.Loot.Total)
+    _totalItemsRow.Value:SetText(LettuceTrackerCharacterDB.Loot.Total)
+end
+
+function LettuceTrackerNS.MainWindow:CreateButtons()
+    local buttonContainer = CreateFrame("Frame", nil, _frame)
+    buttonContainer:SetHeight(30)
+    buttonContainer:SetPoint("BOTTOMLEFT", _frame, "BOTTOMLEFT", 8, 8)
+    buttonContainer:SetPoint("BOTTOMRIGHT", _frame, "BOTTOMRIGHT", -8, 8)
+
+    local buttonWidth = 60
+
+    local leftButton = CreateFrame("Button", nil, buttonContainer, "UIPanelButtonTemplate")
+    leftButton:SetSize(buttonWidth, 22)
+    leftButton:SetPoint("LEFT", buttonContainer, "LEFT", 0, 0)
+    leftButton:SetText("Gold")
+
+    leftButton:SetScript("OnClick", function()
+        LettuceTrackerNS.GoldWindow:Toggle()
+    end)
+
+    local centerButton = CreateFrame("Button", nil, buttonContainer, "UIPanelButtonTemplate")
+    centerButton:SetSize(buttonWidth, 22)
+    centerButton:SetPoint("CENTER", buttonContainer, "CENTER", 0, 0)
+    centerButton:SetText("Kills")
+
+    centerButton:SetScript("OnClick", function()
+        LettuceTrackerNS.KillWindow:Toggle()
+    end)
+
+    local rightButton = CreateFrame("Button", nil, buttonContainer, "UIPanelButtonTemplate")
+    rightButton:SetSize(buttonWidth, 22)
+    rightButton:SetPoint("RIGHT", buttonContainer, "RIGHT", 0, 0)
+    rightButton:SetText("Loot")
+
+    rightButton:SetScript("OnClick", function()
+        
+    end)
 end

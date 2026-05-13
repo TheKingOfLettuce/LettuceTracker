@@ -8,17 +8,29 @@ function LettuceTrackerNS.Loot:Initialize()
     print("Loot Module Initialized")
 end
 
+local LootPatterns = {
+    LOOT_ITEM_SELF_MULTIPLE:gsub("%%s", "(.+)"):gsub("%%d", "(%%d+)"),
+    LOOT_ITEM_PUSHED_SELF_MULTIPLE:gsub("%%s", "(.+)"):gsub("%%d", "(%%d+)"),
+    LOOT_ITEM_SELF:gsub("%%s", "(.+)"),
+    LOOT_ITEM_PUSHED_SELF:gsub("%%s", "(.+)"),
+}
+local function GetItemInfoFromMsg(message)
+    for _, pattern in ipairs(LootPatterns) do
+        local itemLink, quantity = message:match(pattern)
+        if itemLink then
+            return itemLink, tonumber(quantity) or 1
+        end
+    end
+end
+
 local function ParseLootMessage(message)
-    local itemLink = message:match("|Hitem:.-|h%[.-%]|h")
+    local itemLink, quantity = GetItemInfoFromMsg(message)
 
     if not itemLink then
         return nil
     end
 
     local itemID = C_Item.GetItemInfoInstant(itemLink)
-
-    -- Usually loot messages end like "x3." or "x12."
-    local quantity = tonumber(message:match("x(%d+)")) or 1
 
     return {
         itemID = itemID,

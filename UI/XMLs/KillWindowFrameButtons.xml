@@ -1,0 +1,31 @@
+<Ui>
+    <Frame name="LettuceTrackerKillFrameButtons" virtual="true">
+        <Size x="336" y="24"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Bg">
+                    <Anchors>
+                        <Anchor point="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT"/>
+                    </Anchors>
+                    <Color r="1" g="1" b="1" a="0.04"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="NameText" inherits="GameFontHighlightSmall" justifyH="LEFT">
+                    <Size x="220" y="24"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="8" y="0"/>
+                    </Anchors>
+                </FontString>
+
+                <FontString parentKey="KillsText" inherits="GameFontHighlightSmall" justifyH="RIGHT">
+                    <Size x="60" y="24"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" x="-8" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
+</Ui>

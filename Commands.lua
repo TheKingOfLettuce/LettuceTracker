@@ -13,7 +13,7 @@ SlashCmdList["LETTUCESTATS"] = function(msg)
     command = command:lower()
 
     if command == "" then
-        LettuceTrackerNS.UI:Toggle()
+        LettuceTrackerNS.MainWindow:Toggle()
         return
     end
 

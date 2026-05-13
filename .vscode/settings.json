@@ -46,6 +46,20 @@
         "COMBAT_TEXT_SCROLL_FUNCTION",
         "UIDropDownMenu_AddButton",
         "LE_PARTY_CATEGORY_INSTANCE",
-        "ReloadUI"
+        "ReloadUI",
+        "HybridScrollFrame_Update",
+        "HybridScrollFrame_GetOffset",
+        "HybridScrollFrame_CreateButtons",
+        "HybridScrollFrame_GetButtons",
+        "TooltipDataProcessor",
+        "DEFAULT_CHAT_FRAME",
+        "RaidNotice_AddMessage",
+        "RaidBossEmoteFrame",
+        "ChatTypeInfo",
+        "RaidWarningFrame",
+        "SOUNDKIT",
+        "FauxScrollFrame_Update",
+        "FauxScrollFrame_OnVerticalScroll",
+        "FauxScrollFrame_GetOffset"
     ]
 }

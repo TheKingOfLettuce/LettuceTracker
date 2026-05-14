@@ -39,6 +39,10 @@ local function ParseLootMessage(message)
 end
 
 function LettuceTrackerNS.Loot:OnChatLoot(message)
+    if not LettuceTrackerCharacterDB.SettingsWindow.TrackLoot then
+        return
+    end
+
     local loot = ParseLootMessage(message)
 
     if not loot then

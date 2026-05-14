@@ -62,6 +62,7 @@
         "FauxScrollFrame_OnVerticalScroll",
         "FauxScrollFrame_GetOffset",
         "CombatLogGetCurrentEventInfo"
+        "ItemRefTooltip"
     ],
     "Lua.type.weakUnionCheck": true
 }

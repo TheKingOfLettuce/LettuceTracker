@@ -11,7 +11,14 @@ LettuceTrackerNS.KillWindow.DisplayData = {}
 function LettuceTrackerNS.KillWindow:BuildDisplayData()
     wipe(self.DisplayData)
 
-    for npcId, killStat in pairs(LettuceTrackerCharacterDB.Kills.NPCs or {}) do
+    local statTable
+    if LettuceTrackerCharacterDB.SettingsWindow.AccountStats then
+        statTable = LettuceTrackerDB
+    else
+        statTable = LettuceTrackerCharacterDB
+    end
+
+    for npcId, killStat in pairs(statTable.Kills.NPCs or {}) do
         table.insert(self.DisplayData, {
             NpcID = npcId,
             Name = killStat.Name,
@@ -80,6 +87,23 @@ function LettuceTrackerNS.KillWindow:Toggle()
         LettuceTrackerNS.KillWindow:Refresh()
         self.Frame:Show()
     end
+end
+
+function LettuceTrackerNS.KillWindow:Hide()
+    if not self.Frame or not self.Frame:IsShown() then
+        return
+    end
+
+    self.Frame:Hide()
+end
+
+function LettuceTrackerNS.KillWindow:RefreshTable()
+    if not self.Frame or not self.Frame:IsShown() then
+        return
+    end
+
+    self:BuildDisplayData()
+    self:Refresh()
 end
 
 function LettuceTrackerNS.KillWindow:Refresh()

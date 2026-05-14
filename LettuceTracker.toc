@@ -12,6 +12,8 @@ UI/XMLs/LootWindowFrameButtons.xml
 Core.lua
 Database.lua
 
+UI/SettingsWindow.lua
+
 Modules/Gold.lua
 Modules/Kills.lua
 Modules/Loot.lua

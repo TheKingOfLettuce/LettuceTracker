@@ -11,7 +11,14 @@ LettuceTrackerNS.LootWindow.DisplayData = {}
 function LettuceTrackerNS.LootWindow:BuildDisplayData()
     wipe(self.DisplayData)
 
-    for itemID, lootStat in pairs(LettuceTrackerCharacterDB.Loot.Items or {}) do
+    local statTable
+    if LettuceTrackerCharacterDB.SettingsWindow.AccountStats then
+        statTable = LettuceTrackerDB
+    else
+        statTable = LettuceTrackerCharacterDB
+    end
+
+    for itemID, lootStat in pairs(statTable.Loot.Items or {}) do
         local itemName, _, quality = C_Item.GetItemInfo(itemID)
         if itemName then
             table.insert(self.DisplayData, {
@@ -92,6 +99,23 @@ function LettuceTrackerNS.LootWindow:Toggle()
         LettuceTrackerNS.LootWindow:Refresh()
         self.Frame:Show()
     end
+end
+
+function LettuceTrackerNS.LootWindow:Hide()
+    if not self.Frame or not self.Frame:IsShown() then
+        return
+    end
+
+    self.Frame:Hide()
+end
+
+function LettuceTrackerNS.LootWindow:RefreshTable()
+    if not self.Frame or not self.Frame:IsShown() then
+        return
+    end
+
+    self:BuildDisplayData()
+    self:Refresh()
 end
 
 function LettuceTrackerNS.LootWindow:Refresh()

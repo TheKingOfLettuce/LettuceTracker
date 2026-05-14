@@ -18,7 +18,12 @@ function LettuceTrackerNS:RegisterEvent(event, module, handler)
 end
 
 function LettuceTrackerNS:HandleLogin()
+    -- This should roughly match load order in the TOC file
     LettuceTrackerNS.DB:Initialize()
+
+    if LettuceTrackerNS.SettingsWindow then
+        LettuceTrackerNS.SettingsWindow:Create()
+    end
 
     if LettuceTrackerNS.Gold then
         LettuceTrackerNS.Gold:Initialize()
@@ -52,6 +57,7 @@ function LettuceTrackerNS:HandleLogin()
         LettuceTrackerNS.LootWindow:Create()
     end
 
+    LettuceTrackerNS.PlayerGUID = UnitGUID("player")
     print("Lettuce Tracker Addon Loaded")
 end
 

@@ -21,6 +21,10 @@ function LettuceTrackerNS.GetNpcIdFromGuid(guid)
 end
 
 function LettuceTrackerNS.Kills:OnCombatLogEvent()
+    if not LettuceTrackerCharacterDB.SettingsWindow.TrackKills then
+        return
+    end
+
     local _, subevent, _, sourceGUID, sourceName, _, _, destGUID, destName, _, _ =
         CombatLogGetCurrentEventInfo()
 
@@ -28,10 +32,13 @@ function LettuceTrackerNS.Kills:OnCombatLogEvent()
         return
     end
 
-    -- TODO PartyKills option
-    -- if sourceGUID ~= UnitGUID("player") then
-    --     return
-    -- end
+    if not LettuceTrackerCharacterDB.SettingsWindow.PartyKills then
+        local playerGUID = LettuceTrackerNS.PlayerGUID
+        local petGUID = UnitGUID("pet")
+        if sourceGUID ~= playerGUID and sourceGUID ~= petGUID then
+            return
+        end
+    end
 
     local npcID = LettuceTrackerNS.GetNpcIdFromGuid(destGUID)
     if not npcID then

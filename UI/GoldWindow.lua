@@ -61,6 +61,18 @@ local function RestoreWindowState(frame)
     frame:SetPoint(ui.Point or "CENTER", UIParent, ui.RelativePoint or ui.Point or "CENTER", ui.X or 0, ui.Y or 0)
 end
 
+local function CreateCloseButton(parent)
+    local button = CreateFrame("Button", nil, parent, "UIPanelCloseButton")
+
+    button:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 2, 2)
+    button:SetScript("OnClick", function()
+        parent:Hide()
+        SaveWindowState(parent)
+    end)
+
+    return button
+end
+
 function LettuceTrackerNS.GoldWindow:Create()
     if _frame then return _frame end
 
@@ -93,6 +105,7 @@ function LettuceTrackerNS.GoldWindow:Create()
     _frame.bg:SetColorTexture(0, 0, 0, 0.4)
 
     self:CreateResizeButton()
+    CreateCloseButton(_frame)
 
     _lootedGoldRow = CreateStatRow(_frame, nil)
     _soldGoldRow = CreateStatRow(_frame, _lootedGoldRow)
@@ -153,8 +166,25 @@ function LettuceTrackerNS.GoldWindow:Show()
 end
 
 function LettuceTrackerNS.GoldWindow.Hide()
+    if not _frame then
+        return
+    end
+
     _frame:Hide()
     SaveWindowState(_frame)
+end
+
+function LettuceTrackerNS.GoldWindow:RefreshEverything()
+    if not _frame:IsShown() then
+        return
+    end
+
+    self:RefreshLootedGold()
+    self:RefreshSoldGold()
+    self:RefreshMailGold()
+    self:RefreshQuestGold()
+    self:RefreshOtherGold()
+    self:RefreshTotalGold()
 end
 
 function LettuceTrackerNS.GoldWindow:RefreshTotalGold()
@@ -162,8 +192,15 @@ function LettuceTrackerNS.GoldWindow:RefreshTotalGold()
         return
     end
 
+    local table
+    if LettuceTrackerCharacterDB.SettingsWindow.AccountStats then
+        table = LettuceTrackerDB
+    else
+        table = LettuceTrackerCharacterDB
+    end
+
     _totalGoldRow.Label:SetText("Total Gold:")
-    _totalGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(LettuceTrackerCharacterDB.Gold.Total))
+    _totalGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(table.Gold.Total))
 end
 
 function LettuceTrackerNS.GoldWindow:RefreshLootedGold()
@@ -171,8 +208,15 @@ function LettuceTrackerNS.GoldWindow:RefreshLootedGold()
         return
     end
 
+    local table
+    if LettuceTrackerCharacterDB.SettingsWindow.AccountStats then
+        table = LettuceTrackerDB
+    else
+        table = LettuceTrackerCharacterDB
+    end
+
     _lootedGoldRow.Label:SetText("Looted Gold:")
-    _lootedGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(LettuceTrackerCharacterDB.Gold.Looted))
+    _lootedGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(table.Gold.Looted))
 end
 
 function LettuceTrackerNS.GoldWindow:RefreshSoldGold()
@@ -180,8 +224,15 @@ function LettuceTrackerNS.GoldWindow:RefreshSoldGold()
         return
     end
 
+    local table
+    if LettuceTrackerCharacterDB.SettingsWindow.AccountStats then
+        table = LettuceTrackerDB
+    else
+        table = LettuceTrackerCharacterDB
+    end
+
     _soldGoldRow.Label:SetText("Vendor Gold:")
-    _soldGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(LettuceTrackerCharacterDB.Gold.Sold))
+    _soldGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(table.Gold.Sold))
 end
 
 function LettuceTrackerNS.GoldWindow:RefreshMailGold()
@@ -189,8 +240,15 @@ function LettuceTrackerNS.GoldWindow:RefreshMailGold()
         return
     end
 
+    local table
+    if LettuceTrackerCharacterDB.SettingsWindow.AccountStats then
+        table = LettuceTrackerDB
+    else
+        table = LettuceTrackerCharacterDB
+    end
+
     _mailGoldRow.Label:SetText("Mail Gold:")
-    _mailGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(LettuceTrackerCharacterDB.Gold.Mail))
+    _mailGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(table.Gold.Mail))
 end
 
 function LettuceTrackerNS.GoldWindow:RefreshQuestGold()
@@ -198,8 +256,15 @@ function LettuceTrackerNS.GoldWindow:RefreshQuestGold()
         return
     end
 
+    local table
+    if LettuceTrackerCharacterDB.SettingsWindow.AccountStats then
+        table = LettuceTrackerDB
+    else
+        table = LettuceTrackerCharacterDB
+    end
+
     _questGoldRow.Label:SetText("Quest Gold:")
-    _questGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(LettuceTrackerCharacterDB.Gold.Quests))
+    _questGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(table.Gold.Quests))
 end
 
 function LettuceTrackerNS.GoldWindow:RefreshOtherGold()
@@ -207,8 +272,15 @@ function LettuceTrackerNS.GoldWindow:RefreshOtherGold()
         return
     end
 
+    local table
+    if LettuceTrackerCharacterDB.SettingsWindow.AccountStats then
+        table = LettuceTrackerDB
+    else
+        table = LettuceTrackerCharacterDB
+    end
+
     _otherGoldRow.Label:SetText("Other Gold:")
-    _otherGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(LettuceTrackerCharacterDB.Gold.Other))
+    _otherGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(table.Gold.Other))
 end
 
 local _sourceRowMap = {

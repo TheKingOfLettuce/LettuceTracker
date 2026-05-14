@@ -65,6 +65,10 @@ function LettuceTrackerNS.Gold:OnMerchantClosed()
 end
 
 function LettuceTrackerNS.Gold:OnPlayerMoney()
+    if not LettuceTrackerCharacterDB.SettingsWindow.TrackGold then
+        return
+    end
+    
     local currentMoney = GetMoney()
     local difference = currentMoney - _lastMoney
 

@@ -61,5 +61,6 @@
         "FauxScrollFrame_Update",
         "FauxScrollFrame_OnVerticalScroll",
         "FauxScrollFrame_GetOffset"
-    ]
+    ],
+    "Lua.type.weakUnionCheck": true
 }

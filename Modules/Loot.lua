@@ -4,8 +4,6 @@ LettuceTrackerNS.Loot = {}
 
 function LettuceTrackerNS.Loot:Initialize()
     LettuceTrackerNS:RegisterEvent("CHAT_MSG_LOOT", LettuceTrackerNS.Loot, LettuceTrackerNS.Loot.OnChatLoot)
-
-    print("Loot Module Initialized")
 end
 
 local LootPatterns = {

@@ -34,8 +34,6 @@ function LettuceTrackerNS.DB:Initialize()
 
     self:ApplyDefaults(LettuceTrackerDB, DEFAULT_TABLE)
     self:ApplyDefaults(LettuceTrackerCharacterDB, DEFAULT_TABLE)
-
-    print("LettuceTrackerDB Initialized")
 end
 
 function LettuceTrackerNS.DB:ApplyDefaults(target, source)
@@ -74,11 +72,6 @@ function LettuceTrackerNS.DB:AddGold(source, amount)
     self:AddGoldToTable(LettuceTrackerCharacterDB, source, amount)
     self:AddGoldToTable(LettuceTrackerDB, source, amount)
 
-    print(
-        "Added gold:",
-        source,
-        C_CurrencyInfo.GetCoinTextureString(amount)
-    )
     LettuceTrackerNS.MainWindow:RefreshTotalGold()
     LettuceTrackerNS.GoldWindow:RefreshTotalGold()
     LettuceTrackerNS.GoldWindow:RefreshSource(source)
@@ -97,10 +90,6 @@ function LettuceTrackerNS.DB:AddKill(npcID, npcName)
     self:AddKillToTable(LettuceTrackerCharacterDB, npcID, npcName)
     self:AddKillToTable(LettuceTrackerDB, npcID, npcName)
 
-    print(
-        "Killed NPC:",
-        npcID
-    )
     LettuceTrackerNS.MainWindow:RefreshTotalKills()
 end
 
@@ -123,11 +112,6 @@ function LettuceTrackerNS.DB:AddLoot(itemID, quantity)
     self:AddLootToTable(LettuceTrackerCharacterDB, itemID, quantity)
     self:AddLootToTable(LettuceTrackerDB, itemID, quantity)
 
-    print(
-        "Looted item:",
-        itemID,
-        "x" .. quantity
-    )
     LettuceTrackerNS.MainWindow:RefreshTotalItems()
 end
 

@@ -32,6 +32,10 @@ function LettuceTrackerNS:HandleLogin()
         LettuceTrackerNS.Kills:Initialize()
     end
 
+    if LettuceTrackerNS.Tooltip then
+        LettuceTrackerNS.Tooltip:Initialize()
+    end
+
     if LettuceTrackerNS.MainWindow then
         LettuceTrackerNS.MainWindow:Create()
     end
@@ -42,6 +46,10 @@ function LettuceTrackerNS:HandleLogin()
 
     if LettuceTrackerNS.KillWindow then
         LettuceTrackerNS.KillWindow:Create()
+    end
+
+    if LettuceTrackerNS.LootWindow then
+        LettuceTrackerNS.LootWindow:Create()
     end
 
     print("Lettuce Tracker Addon Loaded")

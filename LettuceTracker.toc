@@ -6,13 +6,19 @@
 ## SavedVariablesPerCharacter: LettuceTrackerCharacterDB
 
 UI/XMLs/KillWindowFrameButtons.xml
+UI/XMLs/LootWindowFrameButtons.xml
 
 Core.lua
 Database.lua
+
 Modules/Gold.lua
 Modules/Kills.lua
 Modules/Loot.lua
+Modules/Tooltip.lua
+
 UI/MainWindow.lua
 UI/GoldWindow.lua
 UI/KillsWindow.lua
+UI/LootWindow.lua
+
 Commands.lua

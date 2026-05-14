@@ -6,7 +6,7 @@ function LettuceTrackerNS.Kills:Initialize()
     LettuceTrackerNS:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", LettuceTrackerNS.Kills, LettuceTrackerNS.Kills.OnCombatLogEvent)
 end
 
-local function GetNpcIdFromGuid(guid)
+function LettuceTrackerNS.GetNpcIdFromGuid(guid)
     if not guid then
         return nil
     end
@@ -33,7 +33,7 @@ function LettuceTrackerNS.Kills:OnCombatLogEvent()
     --     return
     -- end
 
-    local npcID = GetNpcIdFromGuid(destGUID)
+    local npcID = LettuceTrackerNS.GetNpcIdFromGuid(destGUID)
     if not npcID then
         return
     end

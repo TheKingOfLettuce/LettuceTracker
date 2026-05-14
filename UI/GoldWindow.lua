@@ -21,19 +21,16 @@ local function CreateStatRow(parent, previousRow)
         row:SetPoint("TOPLEFT", parent, "TOPLEFT", 16, -40)
     end
 
-    row:SetPoint("LEFT", parent, "LEFT", 12, 0)
-    row:SetPoint("RIGHT", parent, "RIGHT", -12, 0)
+    row:SetPoint("LEFT", parent, "LEFT", 8, 0)
+    row:SetPoint("RIGHT", parent, "RIGHT", -8, 0)
 
     row.Label = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    row.Label:SetPoint("LEFT", row, "LEFT", 0, 0)
+    row.Label:SetPoint("LEFT", row, "LEFT", -10, 0)
     row.Label:SetJustifyH("LEFT")
 
     row.Value = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     row.Value:SetPoint("RIGHT", row, "RIGHT", 0, 0)
     row.Value:SetJustifyH("RIGHT")
-
-    row.Label:SetPoint("LEFT", row, "LEFT", 0, 0)
-    row.Value:SetPoint("RIGHT", row, "RIGHT", 0, 0)
 
     row.Label:SetFont("Fonts\\FRIZQT__.TTF", 12, "OUTLINE")
     row.Value:SetFont("Fonts\\FRIZQT__.TTF", 12, "OUTLINE")
@@ -76,7 +73,7 @@ function LettuceTrackerNS.GoldWindow:Create()
     end
 
     _frame:SetResizable(true)
-    _frame:SetResizeBounds(200, 180, 600, 800)
+    _frame:SetResizeBounds(200, 180, 600, 180)
 
     _frame:SetMovable(true)
     _frame:EnableMouse(true)
@@ -86,6 +83,7 @@ function LettuceTrackerNS.GoldWindow:Create()
         self:StopMovingOrSizing()
         SaveWindowState(self)
     end)
+    _frame:SetToplevel(true)
 
     _frame.title = _frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     _frame.title:SetPoint("TOP", 0, -5)
@@ -95,8 +93,6 @@ function LettuceTrackerNS.GoldWindow:Create()
     _frame.bg:SetColorTexture(0, 0, 0, 0.4)
 
     self:CreateResizeButton()
-
-    _frame.rows = {}
 
     _lootedGoldRow = CreateStatRow(_frame, nil)
     _soldGoldRow = CreateStatRow(_frame, _lootedGoldRow)
@@ -146,13 +142,13 @@ function LettuceTrackerNS.GoldWindow:Toggle()
 end
 
 function LettuceTrackerNS.GoldWindow:Show()
-    self:RefreshTotalGold()
     self:RefreshLootedGold()
     self:RefreshSoldGold()
     self:RefreshMailGold()
     self:RefreshQuestGold()
     self:RefreshOtherGold()
     _frame:Show()
+    self:RefreshTotalGold() -- purposefully after show, so that we can bypass our optimization
     SaveWindowState(_frame)
 end
 
@@ -230,7 +226,6 @@ function LettuceTrackerNS.GoldWindow:RefreshSource(source)
 
     local rowRefresh = _sourceRowMap[source]
     if not rowRefresh then
-        print("could not find source refresh ", source)
         return
     end
 

@@ -2,27 +2,22 @@ local _, LettuceTrackerNS = ...
 
 LettuceTrackerNS.Gold = {}
 
+local LOOTED_SOURCE = "LOOTED"
+local QUEST_SOURCE = "QUEST"
+local MAIL_SOURCE = "MAIL"
+local VENDOR_SOURCE = "VENDOR"
+local OTHER_SOURCE = "OTHER"
+
 local _startingMoney = 0
 local _lastMoney = 0
-local _atMerchant = false
-local _atMail = false
+local _goldSource = OTHER_SOURCE
 
-local GOLD_KEY = gsub(GOLD_AMOUNT, "%%d", "(%%d+)")
-local SILVER_KEY = gsub(SILVER_AMOUNT, "%%d", "(%%d+)")
-local COPPER_Key = gsub(COPPER_AMOUNT, "%%d", "(%%d+)")
-local function _ParseLootString(message)
-    local gold = tonumber(message:match(GOLD_KEY)) or 0
-    local silver = tonumber(message:match(SILVER_KEY)) or 0
-    local copper = tonumber(message:match(COPPER_Key)) or 0
-    return gold*10000 + silver*100 + copper
-end
 
 function LettuceTrackerNS.Gold:Initialize()
     _startingMoney = GetMoney()
     _lastMoney = _startingMoney
 
     LettuceTrackerNS:RegisterEvent("PLAYER_MONEY", LettuceTrackerNS.Gold, LettuceTrackerNS.Gold.OnPlayerMoney)
-    LettuceTrackerNS:RegisterEvent("CHAT_MSG_MONEY", LettuceTrackerNS.Gold, LettuceTrackerNS.Gold.OnChatMsgMoney)
 
     LettuceTrackerNS:RegisterEvent("MERCHANT_SHOW", LettuceTrackerNS.Gold, LettuceTrackerNS.Gold.OnMerchantShow)
     LettuceTrackerNS:RegisterEvent("MERCHANT_CLOSED", LettuceTrackerNS.Gold, LettuceTrackerNS.Gold.OnMerchantClosed)
@@ -32,19 +27,41 @@ function LettuceTrackerNS.Gold:Initialize()
 
     LettuceTrackerNS:RegisterEvent("QUEST_TURNED_IN", LettuceTrackerNS.Gold, LettuceTrackerNS.Gold.QuestTurnIn)
 
-    print("Gold Module Initialized")
+    LettuceTrackerNS:RegisterEvent("LOOT_OPENED", LettuceTrackerNS.Gold, LettuceTrackerNS.Gold.OnLootOpen)
+    LettuceTrackerNS:RegisterEvent("LOOT_CLOSED", LettuceTrackerNS.Gold, LettuceTrackerNS.Gold.OnLootClosed)
 end
 
+function LettuceTrackerNS.Gold:ClearGoldSourceAfterDelay(source, delay)
+    if self.ClearSourceTimer then
+        self.ClearSourceTimer:Cancel()
+        self.ClearSourceTimer = nil
+    end
+
+    self.ClearSourceTimer = C_Timer.NewTimer(delay or 3, function()
+        if _goldSource == source then
+            self:SetGoldSource(OTHER_SOURCE)
+        end
+
+        self.ClearSourceTimer = nil
+    end)
+end
+
+function LettuceTrackerNS.Gold:SetGoldSource(source)
+    _goldSource = source
+    if self.ClearSourceTimer then
+        self.ClearSourceTimer:Cancel()
+        self.ClearSourceTimer = nil
+    end
+end 
+
 function LettuceTrackerNS.Gold:OnMerchantShow()
-    _atMerchant = true
-    _lastMoney = GetMoney()
-    print("Merchant Start: ", _atMerchant)
+    self:SetGoldSource(VENDOR_SOURCE)
 end
 
 function LettuceTrackerNS.Gold:OnMerchantClosed()
-    _atMerchant = false
-    _lastMoney = GetMoney()
-    print("Merchant Stop: ", _atMerchant)
+    if _goldSource == VENDOR_SOURCE then
+        self:ClearGoldSourceAfterDelay(VENDOR_SOURCE)
+    end
 end
 
 function LettuceTrackerNS.Gold:OnPlayerMoney()
@@ -52,28 +69,24 @@ function LettuceTrackerNS.Gold:OnPlayerMoney()
     local difference = currentMoney - _lastMoney
 
     if difference > 0 then
-        if _atMail then
+        if _goldSource == MAIL_SOURCE then
             LettuceTrackerNS.DB:AddGold("Mail", difference)
-        elseif _atMerchant then
+        elseif _goldSource == VENDOR_SOURCE then
             LettuceTrackerNS.DB:AddGold("Sold", difference)
+        elseif _goldSource == LOOTED_SOURCE then
+            LettuceTrackerNS.DB:AddGold("Looted", difference)
+        elseif _goldSource == QUEST_SOURCE then
+            LettuceTrackerNS.DB:AddGold("Quests", difference)
+        else
+            LettuceTrackerNS.DB:AddGold("Other", difference)
         end
     end
 
     _lastMoney = currentMoney
 end
 
-function LettuceTrackerNS.Gold:OnChatMsgMoney(message)
-    local looted_money = _ParseLootString(message)
-    if looted_money <= 0 then
-        return
-    end
-
-    LettuceTrackerNS.DB:AddGold("Looted", looted_money)
-end
-
 function LettuceTrackerNS.Gold:OnMailShow()
-    _atMail = true
-    print("Mail Start: ", _atMail)
+    self:SetGoldSource(MAIL_SOURCE)
 end
 
 function LettuceTrackerNS.Gold:OnMailHide(windowType)
@@ -81,8 +94,9 @@ function LettuceTrackerNS.Gold:OnMailHide(windowType)
         return
     end
 
-    _atMail = false
-    print("Mail End: ", _atMail)
+    if _goldSource == MAIL_SOURCE then
+        self:ClearGoldSourceAfterDelay(MAIL_SOURCE)
+    end
 end
 
 function LettuceTrackerNS.Gold:QuestTurnIn(_,_,money)
@@ -90,5 +104,16 @@ function LettuceTrackerNS.Gold:QuestTurnIn(_,_,money)
         return
     end
 
-    LettuceTrackerNS.DB:AddGold("Quests", money)
+    self:SetGoldSource(QUEST_SOURCE)
+    self:ClearGoldSourceAfterDelay(QUEST_SOURCE)
+end
+
+function LettuceTrackerNS.Gold:OnLootOpen(_, _)
+    self:SetGoldSource(LOOTED_SOURCE)
+end
+
+function LettuceTrackerNS.Gold:OnLootClosed()
+    if _goldSource == LOOTED_SOURCE then
+        self:ClearGoldSourceAfterDelay(LOOTED_SOURCE)
+    end
 end

@@ -18,19 +18,16 @@ local function CreateStatRow(parent, previousRow)
         row:SetPoint("TOPLEFT", parent, "TOPLEFT", 16, -40)
     end
 
-    row:SetPoint("LEFT", parent, "LEFT", 12, 0)
-    row:SetPoint("RIGHT", parent, "RIGHT", -12, 0)
+    row:SetPoint("LEFT", parent, "LEFT", 8, 0)
+    row:SetPoint("RIGHT", parent, "RIGHT", -8, 0)
 
     row.Label = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    row.Label:SetPoint("LEFT", row, "LEFT", 0, 0)
+    row.Label:SetPoint("LEFT", row, "LEFT", -10, 0)
     row.Label:SetJustifyH("LEFT")
 
     row.Value = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     row.Value:SetPoint("RIGHT", row, "RIGHT", 0, 0)
     row.Value:SetJustifyH("RIGHT")
-
-    row.Label:SetPoint("LEFT", row, "LEFT", 0, 0)
-    row.Value:SetPoint("RIGHT", row, "RIGHT", 0, 0)
 
     row.Label:SetFont("Fonts\\FRIZQT__.TTF", 12, "OUTLINE")
     row.Value:SetFont("Fonts\\FRIZQT__.TTF", 12, "OUTLINE")
@@ -73,7 +70,7 @@ function LettuceTrackerNS.MainWindow:Create()
     end
 
     _frame:SetResizable(true)
-    _frame:SetResizeBounds(200, 150, 600, 800)
+    _frame:SetResizeBounds(200, 150, 600, 170)
 
     _frame:SetMovable(true)
     _frame:EnableMouse(true)
@@ -83,6 +80,7 @@ function LettuceTrackerNS.MainWindow:Create()
         self:StopMovingOrSizing()
         SaveWindowState(self)
     end)
+    _frame:SetToplevel(true)
 
     _frame.title = _frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     _frame.title:SetPoint("TOP", 0, -5)
@@ -93,8 +91,6 @@ function LettuceTrackerNS.MainWindow:Create()
 
     self:CreateResizeButton()
     self:CreateButtons()
-
-    _frame.rows = {}
 
     _totalGoldRow = CreateStatRow(_frame, nil)
     _totalKillsRow = CreateStatRow(_frame, _totalGoldRow)
@@ -212,6 +208,6 @@ function LettuceTrackerNS.MainWindow:CreateButtons()
     rightButton:SetText("Loot")
 
     rightButton:SetScript("OnClick", function()
-        
+        LettuceTrackerNS.LootWindow:Toggle()
     end)
 end

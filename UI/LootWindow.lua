@@ -4,28 +4,40 @@ local ROW_HEIGHT = 32
 local TABLE_WIDTH = 300
 local TABLE_HEIGHT = 346
 
-LettuceTrackerNS.KillWindow = {}
-LettuceTrackerNS.KillWindow.Rows = {}
-LettuceTrackerNS.KillWindow.DisplayData = {}
+LettuceTrackerNS.LootWindow = {}
+LettuceTrackerNS.LootWindow.Rows = {}
+LettuceTrackerNS.LootWindow.DisplayData = {}
 
-function LettuceTrackerNS.KillWindow:BuildDisplayData()
+function LettuceTrackerNS.LootWindow:BuildDisplayData()
     wipe(self.DisplayData)
 
-    for npcId, killStat in pairs(LettuceTrackerCharacterDB.Kills.NPCs or {}) do
-        table.insert(self.DisplayData, {
-            NpcID = npcId,
-            Name = killStat.Name,
-            Kills = killStat.KillCount,
-        })
+    for itemID, lootStat in pairs(LettuceTrackerCharacterDB.Loot.Items or {}) do
+        local itemName, _, quality = C_Item.GetItemInfo(itemID)
+        if itemName then
+            table.insert(self.DisplayData, {
+                ItemID = itemID,
+                Name = itemName,
+                Count = lootStat,
+                Quality = quality
+            })
+        end
     end
 
     table.sort(self.DisplayData, function(a, b)
-        return a.Kills > b.Kills
+        if a.Quality ~= b.Quality then
+            return a.Quality > b.Quality
+        end
+
+        if a.Count ~= b.Count then
+            return a.Count > b.Count
+        end
+
+        return a.ItemID < b.ItemID
     end)
 end
 
-function LettuceTrackerNS.KillWindow:Create()
-    local frame = CreateFrame("Frame", "LettuceStatKillsWindow", UIParent, "BasicFrameTemplateWithInset")
+function LettuceTrackerNS.LootWindow:Create()
+    local frame = CreateFrame("Frame", "LettuceStatLootWindow", UIParent, "BasicFrameTemplateWithInset")
     frame:SetSize(TABLE_WIDTH, TABLE_HEIGHT)
     frame:SetPoint("CENTER")
 
@@ -44,45 +56,45 @@ function LettuceTrackerNS.KillWindow:Create()
 
     header.Name = header:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     header.Name:SetPoint("LEFT", 8, 0)
-    header.Name:SetText("Enemy")
+    header.Name:SetText("Item")
 
     header.Kills = header:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     header.Kills:SetPoint("RIGHT", -28, 0)
-    header.Kills:SetText("Kills")
+    header.Kills:SetText("Count")
 
     -- Scroll frame
-    local scrollFrame = CreateFrame("ScrollFrame", "LettuceTrackerKillsScrollFrame", frame, "HybridScrollFrameTemplate")
+    local scrollFrame = CreateFrame("ScrollFrame", "LettuceTrackerLootScrollFrame", frame, "HybridScrollFrameTemplate")
     scrollFrame:SetSize(TABLE_WIDTH-24, TABLE_HEIGHT-26)
     scrollFrame:SetPoint("TOPLEFT", 0, -26)
     scrollFrame:SetPoint("BOTTOMRIGHT", -24, 0)
 
-    local scrollBar = CreateFrame("Slider", "LettuceTrackerKillsScrollBar", scrollFrame, "HybridScrollBarTemplate")
+    local scrollBar = CreateFrame("Slider", "LettuceTrackerLootScrollBar", scrollFrame, "HybridScrollBarTemplate")
     scrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 1, -16)
     scrollBar:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 1, 16)
 
-    HybridScrollFrame_CreateButtons(scrollFrame, "LettuceTrackerKillFrameButtons", 0, 0, "TOP", "TOP", 0, 0, "TOP", "BOTTOM")
+    HybridScrollFrame_CreateButtons(scrollFrame, "LettuceTrackerLootFrameButtons", 0, 0, "TOP", "TOP", 0, 0, "TOP", "BOTTOM")
 
     self.Frame = frame
     self.ScrollFrame = scrollFrame
 
     scrollFrame.update = function()
-        LettuceTrackerNS.KillWindow:Refresh()
+        LettuceTrackerNS.LootWindow:Refresh()
     end
 
     frame:Hide()
 end
 
-function LettuceTrackerNS.KillWindow:Toggle()
+function LettuceTrackerNS.LootWindow:Toggle()
     if self.Frame:IsShown() then
         self.Frame:Hide()
     else
         self:BuildDisplayData()
-        LettuceTrackerNS.KillWindow:Refresh()
+        LettuceTrackerNS.LootWindow:Refresh()
         self.Frame:Show()
     end
 end
 
-function LettuceTrackerNS.KillWindow:Refresh()
+function LettuceTrackerNS.LootWindow:Refresh()
     local scrollFrame = self.ScrollFrame
     local buttons = scrollFrame.buttons
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
@@ -95,7 +107,9 @@ function LettuceTrackerNS.KillWindow:Refresh()
 
         if item then
             button.NameText:SetText(item.Name)
-            button.KillsText:SetText(item.Kills)
+            local color = ITEM_QUALITY_COLORS[item.Quality or 1]
+            button.NameText:SetTextColor(color.r, color.g, color.b)
+            button.CountText:SetText(item.Count)
             button:Show()
         else
             button:Hide()

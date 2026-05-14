@@ -1,5 +1,5 @@
 <Ui>
-    <Frame name="LettuceTrackerKillFrameButtons" virtual="true">
+    <Frame name="LettuceTrackerLootFrameButtons" virtual="true">
         <Size x="268" y="32"/>
         <Layers>
             <Layer level="BACKGROUND">
@@ -19,7 +19,7 @@
                     </Anchors>
                 </FontString>
 
-                <FontString parentKey="KillsText" inherits="GameFontHighlight" justifyH="RIGHT">
+                <FontString parentKey="CountText" inherits="GameFontHighlight" justifyH="RIGHT">
                     <Size x="48" y="32"/>
                     <Anchors>
                         <Anchor point="RIGHT" x="-8" y="0"/>

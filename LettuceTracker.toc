@@ -2,7 +2,7 @@
 ## Title: Lettuce Tracker
 ## Notes: Tracker for gold, kills, and loot
 ## Author: TheKingOfLettuce
-## Version: 0.1
+## Version: 1.0.0
 ## SavedVariables: LettuceTrackerDB
 ## SavedVariablesPerCharacter: LettuceTrackerCharacterDB
 

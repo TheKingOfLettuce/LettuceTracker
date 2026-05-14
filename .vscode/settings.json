@@ -60,7 +60,8 @@
         "SOUNDKIT",
         "FauxScrollFrame_Update",
         "FauxScrollFrame_OnVerticalScroll",
-        "FauxScrollFrame_GetOffset"
+        "FauxScrollFrame_GetOffset",
+        "CombatLogGetCurrentEventInfo"
     ],
     "Lua.type.weakUnionCheck": true
 }

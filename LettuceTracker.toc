@@ -1,5 +1,6 @@
 ## Interface: 20505
 ## Title: Lettuce Tracker
+## Notes: Tracker for gold, kills, and loot
 ## Author: TheKingOfLettuce
 ## Version: 0.1
 ## SavedVariables: LettuceTrackerDB

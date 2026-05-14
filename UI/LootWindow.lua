@@ -39,7 +39,7 @@ function LettuceTrackerNS.LootWindow:BuildDisplayData()
             return a.Count > b.Count
         end
 
-        return a.ItemID < b.ItemID
+        return a.Name < b.Name
     end)
 end
 

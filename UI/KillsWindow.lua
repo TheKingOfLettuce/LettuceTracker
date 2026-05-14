@@ -27,7 +27,11 @@ function LettuceTrackerNS.KillWindow:BuildDisplayData()
     end
 
     table.sort(self.DisplayData, function(a, b)
-        return a.Kills > b.Kills
+        if a.Kills ~= b.Kills then
+            return a.Kills > b.Kills
+        end
+
+        return a.Name < b.Name
     end)
 end
 

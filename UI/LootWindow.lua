@@ -1,7 +1,7 @@
 local _, LettuceTrackerNS = ...
 
 local ROW_HEIGHT = 32
-local TABLE_WIDTH = 300
+local TABLE_WIDTH = 340
 local TABLE_HEIGHT = 346
 
 LettuceTrackerNS.LootWindow = {}
@@ -19,13 +19,14 @@ function LettuceTrackerNS.LootWindow:BuildDisplayData()
     end
 
     for itemID, lootStat in pairs(statTable.Loot.Items or {}) do
-        local itemName, _, quality = C_Item.GetItemInfo(itemID)
+        local itemName, _, quality, _, _, _, _, _, _, itemTexture = C_Item.GetItemInfo(itemID)
         if itemName then
             table.insert(self.DisplayData, {
                 ItemID = itemID,
                 Name = itemName,
                 Count = lootStat,
-                Quality = quality
+                Quality = quality,
+                ItemIcon = itemTexture
             })
         end
     end
@@ -72,8 +73,8 @@ function LettuceTrackerNS.LootWindow:Create()
     -- Scroll frame
     local scrollFrame = CreateFrame("ScrollFrame", "LettuceTrackerLootScrollFrame", frame, "HybridScrollFrameTemplate")
     scrollFrame:SetSize(TABLE_WIDTH-24, TABLE_HEIGHT-26)
-    scrollFrame:SetPoint("TOPLEFT", 0, -26)
-    scrollFrame:SetPoint("BOTTOMRIGHT", -24, 0)
+    scrollFrame:SetPoint("TOPLEFT", 0, -30)
+    scrollFrame:SetPoint("BOTTOMRIGHT", -24, 8)
 
     local scrollBar = CreateFrame("Slider", "LettuceTrackerLootScrollBar", scrollFrame, "HybridScrollBarTemplate")
     scrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 1, -16)
@@ -134,6 +135,7 @@ function LettuceTrackerNS.LootWindow:Refresh()
             local color = ITEM_QUALITY_COLORS[item.Quality or 1]
             button.NameText:SetTextColor(color.r, color.g, color.b)
             button.CountText:SetText(item.Count)
+            button.Icon:SetTexture(item.ItemIcon)
             button:Show()
         else
             button:Hide()

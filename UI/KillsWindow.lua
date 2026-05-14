@@ -64,8 +64,8 @@ function LettuceTrackerNS.KillWindow:Create()
     -- Scroll frame
     local scrollFrame = CreateFrame("ScrollFrame", "LettuceTrackerKillsScrollFrame", frame, "HybridScrollFrameTemplate")
     scrollFrame:SetSize(TABLE_WIDTH-24, TABLE_HEIGHT-26)
-    scrollFrame:SetPoint("TOPLEFT", 0, -26)
-    scrollFrame:SetPoint("BOTTOMRIGHT", -24, 0)
+    scrollFrame:SetPoint("TOPLEFT", 0, -30)
+    scrollFrame:SetPoint("BOTTOMRIGHT", -24, 8)
 
     local scrollBar = CreateFrame("Slider", "LettuceTrackerKillsScrollBar", scrollFrame, "HybridScrollBarTemplate")
     scrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 1, -16)

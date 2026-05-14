@@ -1,6 +1,6 @@
 <Ui>
     <Frame name="LettuceTrackerLootFrameButtons" virtual="true">
-        <Size x="268" y="32"/>
+        <Size x="308" y="32"/>
         <Layers>
             <Layer level="BACKGROUND">
                 <Texture parentKey="Bg">
@@ -12,10 +12,16 @@
                 </Texture>
             </Layer>
             <Layer level="OVERLAY">
+                <Texture name="$parentIcon" parentKey="Icon">
+                    <Size x="28" y="28"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="6" y="0"/>
+                    </Anchors>
+                </Texture>
                 <FontString parentKey="NameText" inherits="GameFontHighlight" justifyH="LEFT">
                     <Size x="190" y="32"/>
                     <Anchors>
-                        <Anchor point="LEFT" x="8" y="0"/>
+                        <Anchor point="LEFT" relativeTo="$parentIcon" x="32" y="0"/>
                     </Anchors>
                 </FontString>
 

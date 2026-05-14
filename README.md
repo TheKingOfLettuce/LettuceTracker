@@ -2,7 +2,7 @@
 A World of Warcraft Burning Crusade Classic addon for tracking stats related to gold, kills and items. Extremely lightweight and minimalist compared to other tracking addons.
 
 ## Installation
-Go to the latest releases and download the zip, and unzip the `LettuceTracker` folder into your addons location for World of Warcraft
+Go to [the latest releases](https://github.com/TheKingOfLettuce/LettuceTracker/releases/latest) and download the `LettuceTracker-version.zip` in the Assets, and unzip the `LettuceTracker` folder into your addons location for World of Warcraft
 
 ## Quick Start
 If addon is installed and enabled, you should see a message in chat saying `Lettuce Tracker Addon Loaded`.

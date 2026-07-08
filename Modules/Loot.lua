@@ -9,8 +9,10 @@ end
 local LootPatterns = {
     LOOT_ITEM_SELF_MULTIPLE:gsub("%%s", "(.+)"):gsub("%%d", "(%%d+)"),
     LOOT_ITEM_PUSHED_SELF_MULTIPLE:gsub("%%s", "(.+)"):gsub("%%d", "(%%d+)"),
+    LOOT_ITEM_CREATED_SELF_MULTIPLE:gsub("%%s", "(.+)"):gsub("%%d", "(%%d+)"),
     LOOT_ITEM_SELF:gsub("%%s", "(.+)"),
     LOOT_ITEM_PUSHED_SELF:gsub("%%s", "(.+)"),
+    LOOT_ITEM_CREATED_SELF:gsub("%%s", "(.+)")
 }
 local function GetItemInfoFromMsg(message)
     for _, pattern in ipairs(LootPatterns) do

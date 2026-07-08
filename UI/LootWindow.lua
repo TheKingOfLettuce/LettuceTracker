@@ -8,15 +8,21 @@ LettuceTrackerNS.LootWindow = {}
 LettuceTrackerNS.LootWindow.Rows = {}
 LettuceTrackerNS.LootWindow.DisplayData = {}
 
+local function GetSelectedViewTable()
+    local view = LettuceTrackerCharacterDB.SettingsWindow.SelectView
+    if view == "Account" then
+        return LettuceTrackerDB
+    elseif view == "Session" then
+        return LettuceTrackerNS.DB.SessionDB
+    else
+        return LettuceTrackerCharacterDB
+    end
+end
+
 function LettuceTrackerNS.LootWindow:BuildDisplayData()
     wipe(self.DisplayData)
 
-    local statTable
-    if LettuceTrackerCharacterDB.SettingsWindow.AccountStats then
-        statTable = LettuceTrackerDB
-    else
-        statTable = LettuceTrackerCharacterDB
-    end
+    local statTable = GetSelectedViewTable()
 
     for itemID, lootStat in pairs(statTable.Loot.Items or {}) do
         local itemName, _, quality, _, _, _, _, _, _, itemTexture = C_Item.GetItemInfo(itemID)

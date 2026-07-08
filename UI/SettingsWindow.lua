@@ -8,7 +8,6 @@ local _killsTrackBox
 local _lootTrackBox
 local _killsTooltip
 local _lootTooltip
-local _accountStats
 local _trackPartyKills
 
 local function CreateHorizontalCheckboxGroup(parent, labels, anchor)
@@ -154,23 +153,12 @@ function LettuceTrackerNS.SettingsWindow:CreateTooltipSettings(anchor)
 end
 
 function LettuceTrackerNS.SettingsWindow:CreateMiscSettings(anchor)
-    local group, checkBoxes = CreateHorizontalCheckboxGroup(_frame, {"Show Stats for Account", "Include Party Kills"}, anchor)
-    _accountStats = checkBoxes[1]
-    _trackPartyKills = checkBoxes[2]
+    local group, checkBoxes = CreateHorizontalCheckboxGroup(_frame, {"Include Party Kills"}, anchor)
+    _trackPartyKills = checkBoxes[1]
 
-    if LettuceTrackerCharacterDB.SettingsWindow.AccountStats == nil then
-        LettuceTrackerCharacterDB.SettingsWindow.AccountStats = false
+    if LettuceTrackerCharacterDB.SettingsWindow.SelectView == nil then
+        LettuceTrackerCharacterDB.SettingsWindow.SelectView = "Character"
     end
-    _accountStats:SetChecked(LettuceTrackerCharacterDB.SettingsWindow.AccountStats)
-    _accountStats:SetScript("OnClick", function(self)
-        local checked = self:GetChecked()
-
-        LettuceTrackerCharacterDB.SettingsWindow.AccountStats = checked
-        LettuceTrackerNS.MainWindow:RefreshEverything()
-        LettuceTrackerNS.GoldWindow:RefreshEverything()
-        LettuceTrackerNS.KillWindow:RefreshTable()
-        LettuceTrackerNS.LootWindow:RefreshTable()
-    end)
 
     if LettuceTrackerCharacterDB.SettingsWindow.PartyKills == nil then
         LettuceTrackerCharacterDB.SettingsWindow.PartyKills = true

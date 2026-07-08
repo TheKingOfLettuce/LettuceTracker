@@ -31,9 +31,11 @@ local DEFAULT_TABLE = {
 function LettuceTrackerNS.DB:Initialize()
     LettuceTrackerDB = LettuceTrackerDB or {}
     LettuceTrackerCharacterDB = LettuceTrackerCharacterDB or {}
+    self.SessionDB = {}
 
     self:ApplyDefaults(LettuceTrackerDB, DEFAULT_TABLE)
     self:ApplyDefaults(LettuceTrackerCharacterDB, DEFAULT_TABLE)
+    self:ApplyDefaults(self.SessionDB, DEFAULT_TABLE)
 end
 
 function LettuceTrackerNS.DB:ApplyDefaults(target, source)
@@ -63,6 +65,11 @@ function LettuceTrackerNS.DB:ApplyDefaults(target, source)
     end
 end
 
+function LettuceTrackerNS.DB:ResetSessionDB()
+    self.SessionDB = {}
+    self:ApplyDefaults(self.SessionDB, DEFAULT_TABLE)
+end
+
 
 function LettuceTrackerNS.DB:AddGold(source, amount)
     if amount <= 0 then
@@ -71,6 +78,7 @@ function LettuceTrackerNS.DB:AddGold(source, amount)
 
     self:AddGoldToTable(LettuceTrackerCharacterDB, source, amount)
     self:AddGoldToTable(LettuceTrackerDB, source, amount)
+    self:AddGoldToTable(self.SessionDB, source, amount)
 
     LettuceTrackerNS.MainWindow:RefreshTotalGold()
     LettuceTrackerNS.GoldWindow:RefreshTotalGold()
@@ -89,6 +97,7 @@ function LettuceTrackerNS.DB:AddKill(npcID, npcName)
 
     self:AddKillToTable(LettuceTrackerCharacterDB, npcID, npcName)
     self:AddKillToTable(LettuceTrackerDB, npcID, npcName)
+    self:AddKillToTable(self.SessionDB, npcID, npcName)
 
     LettuceTrackerNS.MainWindow:RefreshTotalKills()
 end
@@ -111,6 +120,7 @@ function LettuceTrackerNS.DB:AddLoot(itemID, quantity)
 
     self:AddLootToTable(LettuceTrackerCharacterDB, itemID, quantity)
     self:AddLootToTable(LettuceTrackerDB, itemID, quantity)
+    self:AddLootToTable(self.SessionDB, itemID, quantity)
 
     LettuceTrackerNS.MainWindow:RefreshTotalItems()
 end

@@ -12,7 +12,7 @@ To open the main window, enter a slash command in chat with `/lettucestats` or s
 
 ![Main Window](README_IMAGES/MainWindow.png)
 
-This show basic totals for all gold collected, total number of kills, and total number of items collected. The 3 buttons on the bottom will open more detailed stat windows for the respective stats.<br>
+This show basic totals for all gold collected, total number of kills, total number of items collected, and the current session time. The dropdown at the top allows you to view stats for your current character, your entire account, or the current session. The 3 buttons on the bottom will open more detailed stat windows for each category<br>
 The gear in the top left will open the addon settings
 
 ### Gold Window
@@ -66,7 +66,5 @@ There are the following settings:
     - Enables the tooltip that shows up on enemies to display the kill counts
 - Show Loot Tooltip
     - Enables the tooltip that shows up on items to display the collect counts
-- Show Stats for Account
-    - Enables to show stats for the entire account, not just the current character
 - Include Party Kills
     - Enables the tracking of all kills in the party, not just personal or pet kills

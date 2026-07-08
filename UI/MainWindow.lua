@@ -6,9 +6,47 @@ local _frame
 local _totalGoldRow
 local _totalKillsRow
 local _totalItemsRow
+local _sessionTime
 local _showGoldWindow
 local _showKillsWindow
 local _showLootWindow
+local _viewDropDown
+local _sessionResetButton
+
+local _sessionTicker
+local _sessionSeconds = 0
+
+local function CreateSimpleDropdown(parent, width, items, default, onSelect)
+    local dropdown = CreateFrame("Frame", nil, parent, "UIDropDownMenuTemplate")
+
+    UIDropDownMenu_SetWidth(dropdown, width)
+
+    UIDropDownMenu_Initialize(dropdown, function(self, level)
+        local info = UIDropDownMenu_CreateInfo()
+
+        for _, value in ipairs(items) do
+            info.text = value
+            info.value = value
+            info.checked = false
+            info.isNotRadio = false
+            info.func = function(self)
+                UIDropDownMenu_SetSelectedValue(dropdown, self.value)
+                UIDropDownMenu_SetText(dropdown, self.value)
+
+                if onSelect then
+                    onSelect(self.value)
+                end
+            end
+
+            UIDropDownMenu_AddButton(info)
+        end
+    end)
+
+    UIDropDownMenu_SetSelectedValue(dropdown, default)
+    UIDropDownMenu_SetText(dropdown, default)
+
+    return dropdown
+end
 
 local function CreateStatRow(parent, previousRow)
     local row = CreateFrame("Frame", nil, parent)
@@ -18,7 +56,7 @@ local function CreateStatRow(parent, previousRow)
     if previousRow then
         row:SetPoint("TOPLEFT", previousRow, "BOTTOMLEFT", 0, -4)
     else
-        row:SetPoint("TOPLEFT", parent, "TOPLEFT", 16, -40)
+        row:SetPoint("TOPLEFT", parent, "TOPLEFT", 16, -60)
     end
 
     row:SetPoint("LEFT", parent, "LEFT", 8, 0)
@@ -63,6 +101,33 @@ local function CreateSettingsButton(parent)
     return button
 end
 
+local function CreateSessionResetButton(parent)
+    local button = CreateFrame("Button", nil, parent)
+
+    button:SetSize(16, 16)
+    button:SetPoint("TOPLEFT", parent, "TOPLEFT", 8, -33)
+
+    button.texture = button:CreateTexture(nil, "ARTWORK")
+    button.texture:SetAllPoints()
+    button.texture:SetTexture("Interface\\Buttons\\UI-RefreshButton")
+
+    button:SetScript("OnEnter", function()
+        button.texture:SetVertexColor(1, 0.8, 0.2)
+    end)
+
+    button:SetScript("OnLeave", function()
+        button.texture:SetVertexColor(1, 1, 1)
+    end)
+
+    button:SetScript("OnClick", function()
+        LettuceTrackerNS.DB:ResetSessionDB()
+        _sessionSeconds = 0
+        LettuceTrackerNS.MainWindow:RefreshEverything()
+    end)
+
+    return button
+end
+
 
 local function SaveWindowState(frame)
     LettuceTrackerCharacterDB.MainWindow = LettuceTrackerCharacterDB.MainWindow or {}
@@ -82,7 +147,7 @@ end
 local function RestoreWindowState(frame)
     local ui = LettuceTrackerCharacterDB.MainWindow
     frame:ClearAllPoints()
-    frame:SetSize(ui.Width or 300, ui.Height or 400)
+    frame:SetSize(ui.Width or 300, ui.Height or 200)
     frame:SetPoint(ui.Point or "CENTER", UIParent, ui.RelativePoint or ui.Point or "CENTER", ui.X or 0, ui.Y or 0)
 end
 
@@ -105,12 +170,12 @@ function LettuceTrackerNS.MainWindow:Create()
     if LettuceTrackerCharacterDB.MainWindow then
         RestoreWindowState(_frame)
     else
-        _frame:SetSize(200, 150)
+        _frame:SetSize(200, 180)
         _frame:SetPoint("CENTER")
     end
 
     _frame:SetResizable(true)
-    _frame:SetResizeBounds(200, 150, 600, 170)
+    _frame:SetResizeBounds(200, 180, 600, 200)
 
     _frame:SetMovable(true)
     _frame:EnableMouse(true)
@@ -132,12 +197,32 @@ function LettuceTrackerNS.MainWindow:Create()
     self:CreateResizeButton()
     CreateCloseButton(_frame)
     CreateSettingsButton(_frame)
+    _sessionResetButton = CreateSessionResetButton(_frame)
+    if LettuceTrackerCharacterDB.SettingsWindow.SelectView == "Session" then
+        _sessionResetButton:Show()
+    else
+        _sessionResetButton:Hide()
+    end
 
     _totalGoldRow = CreateStatRow(_frame, nil)
+    _totalGoldRow.Label:SetText("Total Gold:")
+
     _totalKillsRow = CreateStatRow(_frame, _totalGoldRow)
+    _totalKillsRow.Label:SetText("Total Kills:")
+
     _totalItemsRow = CreateStatRow(_frame, _totalKillsRow)
+    _totalItemsRow.Label:SetText("Total Items:")
+
+    _sessionTime = CreateStatRow(_frame, _totalItemsRow)
+    _sessionTime.Label:SetText("Session Time:")
+
+    _sessionTicker = C_Timer.NewTicker(1, function()
+        _sessionSeconds = _sessionSeconds + 1
+        self:RefreshSessionTime()
+    end)
 
     self:CreateButtons()
+    self:CreateDropdown()
 
     if LettuceTrackerCharacterDB.MainWindow then
         if LettuceTrackerCharacterDB.MainWindow.Shown then
@@ -183,6 +268,7 @@ function LettuceTrackerNS.MainWindow:Show()
     self:RefreshTotalGold()
     self:RefreshTotalKills()
     self:RefreshTotalItems()
+    self:RefreshSessionTime()
     _frame:Show()
     SaveWindowState(_frame)
 end
@@ -200,6 +286,18 @@ function LettuceTrackerNS.MainWindow:RefreshEverything()
     self:RefreshTotalGold()
     self:RefreshTotalKills()
     self:RefreshTotalItems()
+    self:RefreshSessionTime()
+end
+
+local function GetSelectedViewTable()
+    local view = LettuceTrackerCharacterDB.SettingsWindow.SelectView
+    if view == "Account" then
+        return LettuceTrackerDB
+    elseif view == "Session" then
+        return LettuceTrackerNS.DB.SessionDB
+    else
+        return LettuceTrackerCharacterDB
+    end
 end
 
 function LettuceTrackerNS.MainWindow:RefreshTotalGold()
@@ -207,14 +305,8 @@ function LettuceTrackerNS.MainWindow:RefreshTotalGold()
         return
     end
 
-    local table
-    if LettuceTrackerCharacterDB.SettingsWindow.AccountStats then
-        table = LettuceTrackerDB
-    else
-        table = LettuceTrackerCharacterDB
-    end
-
-    _totalGoldRow.Label:SetText("Total Gold:")
+    local table = GetSelectedViewTable()
+    
     if LettuceTrackerCharacterDB.SettingsWindow.TrackGold then
         _totalGoldRow.Value:SetText(C_CurrencyInfo.GetCoinTextureString(table.Gold.Total))
     else
@@ -228,14 +320,8 @@ function LettuceTrackerNS.MainWindow:RefreshTotalKills()
         return
     end
 
-    local table
-    if LettuceTrackerCharacterDB.SettingsWindow.AccountStats then
-        table = LettuceTrackerDB
-    else
-        table = LettuceTrackerCharacterDB
-    end
+    local table = GetSelectedViewTable()
 
-    _totalKillsRow.Label:SetText("Total Kills:")
     if LettuceTrackerCharacterDB.SettingsWindow.TrackKills then
         _totalKillsRow.Value:SetText(table.Kills.Total)
     else
@@ -248,20 +334,28 @@ function LettuceTrackerNS.MainWindow:RefreshTotalItems()
         return
     end
 
-    local table
-    if LettuceTrackerCharacterDB.SettingsWindow.AccountStats then
-        table = LettuceTrackerDB
-    else
-        table = LettuceTrackerCharacterDB
-    end
+    local table = GetSelectedViewTable()
 
-    _totalItemsRow.Label:SetText("Total Items:")
-    _totalItemsRow.Value:SetText(table.Loot.Total)
     if LettuceTrackerCharacterDB.SettingsWindow.TrackLoot then
         _totalItemsRow.Value:SetText(table.Loot.Total)
     else
         _totalItemsRow.Value:SetText("N/A")
     end
+end
+
+function LettuceTrackerNS.MainWindow:RefreshSessionTime()
+    if not _frame then
+        return
+    end
+    if not _frame:IsShown() then
+        return
+    end
+
+    local h = math.floor(_sessionSeconds / 3600)
+    local m = math.floor((_sessionSeconds % 3600) / 60)
+    local s = math.floor(_sessionSeconds % 60)
+
+    _sessionTime.Value:SetText(string.format("%02d:%02d:%02d", h, m, s))
 end
 
 function LettuceTrackerNS.MainWindow:ToggleGoldButton(state)
@@ -335,4 +429,22 @@ function LettuceTrackerNS.MainWindow:CreateButtons()
         LettuceTrackerNS.LootWindow:Toggle()
     end)
     self:ToggleLootButton(LettuceTrackerCharacterDB.SettingsWindow.TrackLoot)
+end
+
+function LettuceTrackerNS.MainWindow:CreateDropdown()
+    _viewDropDown = CreateSimpleDropdown(_frame, 120, {"Character", "Account", "Session"}, LettuceTrackerCharacterDB.SettingsWindow.SelectView, function(value)
+        LettuceTrackerCharacterDB.SettingsWindow.SelectView = value
+
+        if value == "Session" then
+            _sessionResetButton:Show()
+        else
+            _sessionResetButton:Hide()
+        end
+
+        LettuceTrackerNS.MainWindow:RefreshEverything()
+        LettuceTrackerNS.GoldWindow:RefreshEverything()
+        LettuceTrackerNS.KillWindow:RefreshTable()
+        LettuceTrackerNS.LootWindow:RefreshTable()
+    end) 
+    _viewDropDown:SetPoint("TOP", _frame, "TOP", 0, -25)
 end

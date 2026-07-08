@@ -8,15 +8,21 @@ LettuceTrackerNS.KillWindow = {}
 LettuceTrackerNS.KillWindow.Rows = {}
 LettuceTrackerNS.KillWindow.DisplayData = {}
 
+local function GetSelectedViewTable()
+    local view = LettuceTrackerCharacterDB.SettingsWindow.SelectView
+    if view == "Account" then
+        return LettuceTrackerDB
+    elseif view == "Session" then
+        return LettuceTrackerNS.DB.SessionDB
+    else
+        return LettuceTrackerCharacterDB
+    end
+end
+
 function LettuceTrackerNS.KillWindow:BuildDisplayData()
     wipe(self.DisplayData)
 
-    local statTable
-    if LettuceTrackerCharacterDB.SettingsWindow.AccountStats then
-        statTable = LettuceTrackerDB
-    else
-        statTable = LettuceTrackerCharacterDB
-    end
+    local statTable = GetSelectedViewTable()
 
     for npcId, killStat in pairs(statTable.Kills.NPCs or {}) do
         table.insert(self.DisplayData, {

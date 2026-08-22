@@ -44,6 +44,12 @@ function LettuceTrackerNS.Kills:OnCombatLogEvent()
     if not npcID then
         return
     end
+    local zoneName = GetZoneText()
+    local areaName = GetSubZoneText()
+    local location = zoneName
+    if areaName ~= "" then
+        location = location .. ", " .. areaName
+    end
 
-    LettuceTrackerNS.DB:AddKill(npcID, destName)
+    LettuceTrackerNS.DB:AddKill(npcID, destName, location)
 end

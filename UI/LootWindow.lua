@@ -30,7 +30,7 @@ function LettuceTrackerNS.LootWindow:BuildDisplayData()
             table.insert(self.DisplayData, {
                 ItemID = itemID,
                 Name = itemName,
-                Count = lootStat,
+                Count = lootStat.ItemCount,
                 Quality = quality,
                 ItemIcon = itemTexture
             })
@@ -83,7 +83,7 @@ function LettuceTrackerNS.LootWindow:Create()
     scrollFrame:SetPoint("BOTTOMRIGHT", -24, 8)
 
     local scrollBar = CreateFrame("Slider", "LettuceTrackerLootScrollBar", scrollFrame, "HybridScrollBarTemplate")
-    scrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 1, -16)
+    scrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", -3, -16)
     scrollBar:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 1, 16)
 
     HybridScrollFrame_CreateButtons(scrollFrame, "LettuceTrackerLootFrameButtons", 0, 0, "TOP", "TOP", 0, 0, "TOP", "BOTTOM")

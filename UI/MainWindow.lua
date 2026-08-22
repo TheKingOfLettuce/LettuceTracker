@@ -189,7 +189,7 @@ function LettuceTrackerNS.MainWindow:Create()
 
     _frame.title = _frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     _frame.title:SetPoint("TOP", 0, -5)
-    _frame.title:SetText("Lettuce Stats")
+    _frame.title:SetText("Lettuce Tracker")
     _frame.bg = _frame:CreateTexture(nil, "BACKGROUND")
     _frame.bg:SetAllPoints()
     _frame.bg:SetColorTexture(0, 0, 0, 0.4)

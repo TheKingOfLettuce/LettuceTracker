@@ -2,7 +2,11 @@
 A World of Warcraft Classic addon for tracking stats related to gold, kills and items. Extremely lightweight and minimalist compared to other tracking addons.
 
 ## Installation
+### Manual
 Go to [the latest releases](https://github.com/TheKingOfLettuce/LettuceTracker/releases/latest) and download the `LettuceTracker-version.zip` in the Assets, and unzip the `LettuceTracker` folder into your addons location for World of Warcraft
+
+### CurseForge
+https://www.curseforge.com/wow/addons/lettuce-tracker
 
 ## Quick Start
 If addon is installed and enabled, you should see a message in chat saying `Lettuce Tracker Addon Loaded`.

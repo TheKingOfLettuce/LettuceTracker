@@ -1,8 +1,8 @@
 local _, LettuceTrackerNS = ...
 
-local ROW_HEIGHT = 32
+local ROW_HEIGHT = 45
 local TABLE_WIDTH = 300
-local TABLE_HEIGHT = 346
+local TABLE_HEIGHT = 360
 
 LettuceTrackerNS.KillWindow = {}
 LettuceTrackerNS.KillWindow.Rows = {}
@@ -27,8 +27,9 @@ function LettuceTrackerNS.KillWindow:BuildDisplayData()
     for npcId, killStat in pairs(statTable.Kills.NPCs or {}) do
         table.insert(self.DisplayData, {
             NpcID = npcId,
-            Name = killStat.Name,
+            Name = LettuceTrackerStaticDB.EnemyInformation[npcId].Name,
             Kills = killStat.KillCount,
+            Location = LettuceTrackerStaticDB.EnemyInformation[npcId].LocationName
         })
     end
 
@@ -69,12 +70,12 @@ function LettuceTrackerNS.KillWindow:Create()
 
     -- Scroll frame
     local scrollFrame = CreateFrame("ScrollFrame", "LettuceTrackerKillsScrollFrame", frame, "HybridScrollFrameTemplate")
-    scrollFrame:SetSize(TABLE_WIDTH-24, TABLE_HEIGHT-26)
+    scrollFrame:SetSize(TABLE_WIDTH, TABLE_HEIGHT)
     scrollFrame:SetPoint("TOPLEFT", 0, -30)
     scrollFrame:SetPoint("BOTTOMRIGHT", -24, 8)
 
     local scrollBar = CreateFrame("Slider", "LettuceTrackerKillsScrollBar", scrollFrame, "HybridScrollBarTemplate")
-    scrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 1, -16)
+    scrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", -3, -16)
     scrollBar:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 1, 16)
 
     HybridScrollFrame_CreateButtons(scrollFrame, "LettuceTrackerKillFrameButtons", 0, 0, "TOP", "TOP", 0, 0, "TOP", "BOTTOM")
@@ -130,6 +131,7 @@ function LettuceTrackerNS.KillWindow:Refresh()
         if item then
             button.NameText:SetText(item.Name)
             button.KillsText:SetText(item.Kills)
+            button.LocationText:SetText(item.Location)
             button:Show()
         else
             button:Hide()

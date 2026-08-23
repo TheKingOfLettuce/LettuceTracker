@@ -92,8 +92,17 @@ function LettuceTrackerNS.Tooltip:GetKillCounts(npcID)
 end
 
 function LettuceTrackerNS.Tooltip:GetItemCounts(itemID)
-    local characterCount = LettuceTrackerCharacterDB.Loot.Items[itemID] or 0
-    local accountCount = LettuceTrackerDB.Loot.Items[itemID] or 0
+    local characterStat = LettuceTrackerCharacterDB.Loot.Items[itemID]
+    local accountStat = LettuceTrackerDB.Loot.Items[itemID]
+
+    local characterCount = 0
+    if characterStat then
+        characterCount = characterStat.ItemCount
+    end
+    local accountCount = 0
+    if accountStat then
+        accountCount = accountStat.ItemCount
+    end
 
     return characterCount, accountCount
 end

@@ -1,6 +1,6 @@
 <Ui>
     <Frame name="LettuceTrackerKillFrameButtons" virtual="true">
-        <Size x="268" y="32"/>
+        <Size x="268" y="45"/>
         <Layers>
             <Layer level="BACKGROUND">
                 <Texture parentKey="Bg">
@@ -15,15 +15,24 @@
                 <FontString parentKey="NameText" inherits="GameFontHighlight" justifyH="LEFT">
                     <Size x="190" y="32"/>
                     <Anchors>
-                        <Anchor point="LEFT" x="8" y="0"/>
+                        <Anchor point="LEFT" x="8" y="8"/>
                     </Anchors>
                 </FontString>
 
                 <FontString parentKey="KillsText" inherits="GameFontHighlight" justifyH="RIGHT">
                     <Size x="48" y="32"/>
                     <Anchors>
-                        <Anchor point="RIGHT" x="-8" y="0"/>
+                        <Anchor point="RIGHT" x="-12" y="0"/>
                     </Anchors>
+                </FontString>
+
+                <FontString parentKey="LocationText" inherits="GameFontHighlight" justifyH="LEFT">
+                    <Size x="240" y="12"/>
+                    <Anchors>
+                        <Anchor point="Left" x="8" y="-6"/>
+                    </Anchors>
+
+                    <Color r="0.45" g="0.45" b="0.45" a="1"/>
                 </FontString>
             </Layer>
         </Layers>

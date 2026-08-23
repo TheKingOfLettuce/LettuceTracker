@@ -1,5 +1,5 @@
 # LettuceTracker
-A World of Warcraft Burning Crusade Classic addon for tracking stats related to gold, kills and items. Extremely lightweight and minimalist compared to other tracking addons.
+A World of Warcraft Classic addon for tracking stats related to gold, kills and items. Extremely lightweight and minimalist compared to other tracking addons.
 
 ## Installation
 Go to [the latest releases](https://github.com/TheKingOfLettuce/LettuceTracker/releases/latest) and download the `LettuceTracker-version.zip` in the Assets, and unzip the `LettuceTracker` folder into your addons location for World of Warcraft

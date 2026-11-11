@@ -4,6 +4,12 @@ LettuceTrackerNS.EventFrame = CreateFrame("Frame")
 LettuceTrackerNS.Events = {}
 LettuceTrackerNS.RegisteredEvents = {}
 
+-- Retail-based clients (e.g. WoW Forever) can hand addons "secret" values that
+-- error when compared, indexed or parsed. Classic clients have no such concept.
+function LettuceTrackerNS.IsSecret(value)
+    return issecretvalue ~= nil and issecretvalue(value)
+end
+
 function LettuceTrackerNS:RegisterEvent(event, module, handler)
     self.Events[event] = self.Events[event] or {}
     table.insert(self.Events[event], {

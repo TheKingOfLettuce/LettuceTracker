@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Install Addon (Forever)",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy","Bypass",
+                "-File",".vscode/CopyAddon.ps1",
+                "-flavor","forever"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Install Addon (TBC Anniversary)",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy","Bypass",
+                "-File",".vscode/CopyAddon.ps1",
+                "-flavor","anniversary"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        }
+    ]
+}

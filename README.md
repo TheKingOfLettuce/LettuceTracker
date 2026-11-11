@@ -1,6 +1,8 @@
 # LettuceTracker
 A World of Warcraft Classic addon for tracking stats related to gold, kills and items. Extremely lightweight and minimalist compared to other tracking addons.
 
+Supports TBC Anniversary, Classic Era and WoW Forever. On WoW Forever the game hides some combat information from addons, so a kill is only counted when the client reveals which enemy died.
+
 ## Installation
 ### Manual
 Go to [the latest releases](https://github.com/TheKingOfLettuce/LettuceTracker/releases/latest) and download the `LettuceTracker-version.zip` in the Assets, and unzip the `LettuceTracker` folder into your addons location for World of Warcraft

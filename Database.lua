@@ -2,8 +2,14 @@ local _, LettuceTrackerNS = ...
 
 LettuceTrackerNS.DB = {}
 
+-- Bump this and add a step to MIGRATIONS whenever the saved table format changes
+local CURRENT_VERSION = 1
+
+local UNKNOWN_NAME = "Unknown"
+local UNKNOWN_LOCATION = "???"
+
 local DEFAULT_TABLE = {
-    Version = 1,
+    Version = CURRENT_VERSION,
 
     Gold = {
         Total = 0,
@@ -42,21 +48,46 @@ function LettuceTrackerNS.DB:Initialize()
     LettuceTrackerStaticDB = LettuceTrackerStaticDB or {}
     self.SessionDB = {}
 
+    -- Migrations write enemy information, so the static table has to be ready first
+    self:ApplyDefaults(LettuceTrackerStaticDB, DEFAULT_GLOBAL_STATIC_DATA)
+
     self:CheckForMigrations(LettuceTrackerDB)
     self:CheckForMigrations(LettuceTrackerCharacterDB)
 
     self:ApplyDefaults(LettuceTrackerDB, DEFAULT_TABLE)
     self:ApplyDefaults(LettuceTrackerCharacterDB, DEFAULT_TABLE)
     self:ApplyDefaults(self.SessionDB, DEFAULT_TABLE)
-    self:ApplyDefaults(LettuceTrackerStaticDB, DEFAULT_GLOBAL_STATIC_DATA)
 end
 
+-- [version the table is at] = function that moves it up one version.
+-- Steps run before defaults are applied, so they can't assume any key exists,
+-- and each one must be safe to run again on a table it has already migrated.
+local MIGRATIONS = {
+    [0] = function(db, statTable) db:MigrateV0ToV1(statTable) end,
+}
+
 function LettuceTrackerNS.DB:CheckForMigrations(statTable)
-    -- no version means anything <= Addon v1.1.0
-    if next(statTable) ~= nil and statTable.Version == nil then
-        print("LettuceTracker | Migrating data to the new V1 table")
-        self:MigrateV0ToV1(statTable)
+    -- A brand new table has nothing to migrate, defaults stamp it with the current version
+    if next(statTable) == nil then
+        return
     end
+
+    -- no version means anything <= Addon v1.1.0
+    local version = statTable.Version or 0
+
+    if version > CURRENT_VERSION then
+        print("LettuceTracker | Saved data is from a newer version of the addon, stats may not display correctly")
+        return
+    end
+
+    while version < CURRENT_VERSION do
+        print("LettuceTracker | Migrating data to the new V" .. (version + 1) .. " table")
+        MIGRATIONS[version](self, statTable)
+        version = version + 1
+        statTable.Version = version
+    end
+
+    self:RemoveStrayKillCopies(statTable)
 end
 
 function LettuceTrackerNS.DB:ApplyDefaults(target, source)
@@ -86,25 +117,56 @@ function LettuceTrackerNS.DB:ApplyDefaults(target, source)
     end
 end
 
+-- V0 -> V1: enemy names moved out of the kill records into the static table,
+-- item counts changed from a plain number to {ItemCount}
 function LettuceTrackerNS.DB:MigrateV0ToV1(statTable)
-    -- Need to init the new static data to migrate enemy information
-    self:ApplyDefaults(LettuceTrackerStaticDB, DEFAULT_GLOBAL_STATIC_DATA)
+    local enemyInformation = LettuceTrackerStaticDB.EnemyInformation
 
-    -- Apply Enemy migrations to static table
-    for npcId, killStat in pairs(statTable.Kills.NPCs or {}) do
-        self:AddEnemyInfoStaticData(npcId, killStat.Name, "???")
-        killStat.Name = nil
-        statTable.Kills[npcId] = killStat
+    local npcs = type(statTable.Kills) == "table" and statTable.Kills.NPCs
+    if type(npcs) == "table" then
+        for npcId, killStat in pairs(npcs) do
+            if type(killStat) == "table" then
+                -- Every kill record needs enemy information, but never replace
+                -- a name or location that is already known with a worse one
+                local enemyRecord = enemyInformation[npcId] or {}
+                enemyRecord.Name = killStat.Name or enemyRecord.Name or UNKNOWN_NAME
+                enemyRecord.LocationName = enemyRecord.LocationName or UNKNOWN_LOCATION
+                enemyInformation[npcId] = enemyRecord
+
+                killStat.Name = nil
+            end
+        end
     end
 
-    -- Apply Item migrations to new table format
-    for itemID, lootStat in pairs(statTable.Loot.Items or {}) do
-        local itemData = {}
-        itemData.ItemCount = lootStat
-        statTable.Loot.Items[itemID] = itemData
+    local items = type(statTable.Loot) == "table" and statTable.Loot.Items
+    if type(items) == "table" then
+        for itemID, lootStat in pairs(items) do
+            if type(lootStat) == "number" then
+                items[itemID] = { ItemCount = lootStat }
+            end
+        end
+    end
+end
+
+-- Not a format change, so not a versioned migration: the V0 -> V1 migration shipped
+-- in Addon v1.2.0 also copied every kill record directly into Kills, next to Total
+-- and NPCs. This removes those stray copies from tables it already touched.
+function LettuceTrackerNS.DB:RemoveStrayKillCopies(statTable)
+    local kills = statTable.Kills
+    if type(kills) ~= "table" then
+        return
     end
 
-    statTable.Version = 1
+    local strayKeys = {}
+    for key in pairs(kills) do
+        if type(key) == "number" then
+            table.insert(strayKeys, key)
+        end
+    end
+
+    for _, key in ipairs(strayKeys) do
+        kills[key] = nil
+    end
 end
 
 function LettuceTrackerNS.DB:ResetSessionDB()

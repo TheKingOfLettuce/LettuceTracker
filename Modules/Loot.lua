@@ -45,6 +45,11 @@ function LettuceTrackerNS.Loot:OnChatLoot(message)
         return
     end
 
+    -- Retail-based clients can hide chat text in dungeons/raids; it can't be parsed then
+    if LettuceTrackerNS.IsSecret(message) then
+        return
+    end
+
     local loot = ParseLootMessage(message)
 
     if not loot then

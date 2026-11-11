@@ -1,4 +1,4 @@
-## Interface: 20506, 11508
+## Interface: 20506, 11508, 16001
 ## Title: Lettuce Tracker
 ## Notes: Tracker for gold, kills, and loot
 ## Author: TheKingOfLettuce

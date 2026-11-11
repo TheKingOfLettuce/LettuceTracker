@@ -3,6 +3,12 @@ local _, LettuceTrackerNS = ...
 LettuceTrackerNS.Tooltip = {}
 
 function LettuceTrackerNS.Tooltip:Initialize()
+    if not GameTooltip:HasScript("OnTooltipSetUnit") then
+        -- Retail-based clients (WoW Forever) replaced the tooltip scripts with data processors
+        self:InitializeDataProcessors()
+        return
+    end
+
     GameTooltip:HookScript("OnTooltipSetUnit", function(tooltip)
         if not LettuceTrackerCharacterDB.SettingsWindow.TrackKills then
             return
@@ -37,6 +43,62 @@ function LettuceTrackerNS.Tooltip:Initialize()
     end)
 end
 
+function LettuceTrackerNS.Tooltip:InitializeDataProcessors()
+    if not TooltipDataProcessor or not Enum.TooltipDataType then
+        return
+    end
+
+    TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(tooltip, data)
+        if tooltip ~= GameTooltip then
+            return
+        end
+
+        if not LettuceTrackerCharacterDB.SettingsWindow.TrackKills then
+            return
+        end
+
+        if not LettuceTrackerCharacterDB.SettingsWindow.KillsTooltip then
+            return
+        end
+
+        local npcId = LettuceTrackerNS.GetNpcIdFromGuid(data and data.guid)
+        if npcId then
+            self:AddKillsLine(tooltip, npcId)
+        end
+    end)
+
+    TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(tooltip, data)
+        if tooltip ~= GameTooltip and tooltip ~= ItemRefTooltip then
+            return
+        end
+
+        if not LettuceTrackerCharacterDB.SettingsWindow.TrackLoot then
+            return
+        end
+
+        if not LettuceTrackerCharacterDB.SettingsWindow.LootTooltip then
+            return
+        end
+
+        local itemId = data and data.id
+        if itemId and not LettuceTrackerNS.IsSecret(itemId) then
+            self:AddLootLine(tooltip, itemId)
+        end
+    end)
+end
+
+function LettuceTrackerNS.Tooltip:AddKillsLine(tooltip, npcId)
+    local characterCount, accountCount = LettuceTrackerNS.Tooltip:GetKillCounts(npcId)
+
+    tooltip:AddLine("Kills: " .. characterCount .. " | " .. accountCount, 0.4, 1, 0.4)
+end
+
+function LettuceTrackerNS.Tooltip:AddLootLine(tooltip, itemId)
+    local characterCount, accountCount = LettuceTrackerNS.Tooltip:GetItemCounts(itemId)
+
+    tooltip:AddLine("Looted: " .. characterCount .. " | " .. accountCount, 0.4, 1, 0.4)
+end
+
 function LettuceTrackerNS.Tooltip:OnTooltipSetUnit(tooltip)
     local _, unit = tooltip:GetUnit()
 
@@ -50,9 +112,7 @@ function LettuceTrackerNS.Tooltip:OnTooltipSetUnit(tooltip)
         return
     end
 
-    local characterCount, accountCount = LettuceTrackerNS.Tooltip:GetKillCounts(npcId)
-
-    tooltip:AddLine("Kills: " .. characterCount .. " | " .. accountCount, 0.4, 1, 0.4)
+    self:AddKillsLine(tooltip, npcId)
     tooltip:Show()
 end
 
@@ -69,9 +129,7 @@ function LettuceTrackerNS.Tooltip:OnTooltipSetItem(tooltip)
         return
     end
 
-    local characterCount, accountCount = LettuceTrackerNS.Tooltip:GetItemCounts(itemId)
-
-    tooltip:AddLine("Looted: " .. characterCount .. " | " .. accountCount, 0.4, 1, 0.4)
+    self:AddLootLine(tooltip, itemId)
     tooltip:Show()
 end
 
